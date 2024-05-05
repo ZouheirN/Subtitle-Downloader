@@ -28,3 +28,14 @@ class MovieViewFetchingSuccessfulState extends MoviesState {
 }
 
 class MovieViewFetchingErrorState extends MoviesState {}
+
+// Movie Search
+class MovieSearchFetchingLoadingState extends MoviesState {}
+
+class MovieSearchFetchingSuccessfulState extends MoviesState {
+  final MovieSearchDataUiModel movieDataUiModel;
+
+  MovieSearchFetchingSuccessfulState(this.movieDataUiModel);
+}
+
+class MovieSearchFetchingErrorState extends MoviesState {}

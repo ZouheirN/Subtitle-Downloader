@@ -3,6 +3,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
+import 'package:subtitle_downloader/widgets/movie_search_list.dart';
 
 import '../bloc/movies_bloc.dart';
 import 'movie_page.dart';
@@ -29,7 +30,11 @@ class _TrendingMoviesPageState extends State<TrendingMoviesPage> {
       appBar: AppBar(
         title: const Text('Trending Movies'),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded))
+          IconButton(
+              onPressed: () {
+                showSearch(context: context, delegate: MySearchDelegate());
+              },
+              icon: const Icon(Icons.search_rounded))
         ],
       ),
       body: BlocConsumer<MoviesBloc, MoviesState>(
@@ -113,5 +118,84 @@ class _TrendingMoviesPageState extends State<TrendingMoviesPage> {
         },
       ),
     );
+  }
+}
+
+class MySearchDelegate extends SearchDelegate {
+  final MoviesBloc moviesBloc = MoviesBloc();
+
+  MySearchDelegate() {
+    // todo: add discover
+    // moviesBloc.add(MovieSearchInitialFetchEvent(query));
+  }
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        onPressed: () {
+          if (query.isEmpty) {
+            close(context, null);
+          } else {
+            query = '';
+          }
+        },
+        icon: const Icon(Icons.clear_rounded),
+      )
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        close(context, null);
+      },
+      icon: const Icon(Icons.arrow_back_rounded),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    moviesBloc.add(MovieSearchInitialFetchEvent(query));
+
+    return BlocConsumer<MoviesBloc, MoviesState>(
+      bloc: moviesBloc,
+      listenWhen: (previous, current) => current is MoviesActionState,
+      buildWhen: (previous, current) => current is! MoviesActionState,
+      listener: (context, state) {},
+      builder: (context, state) {
+        switch (state.runtimeType) {
+          case const (MovieSearchFetchingLoadingState):
+            return const Center(child: CircularProgressIndicator());
+
+          case const (MovieSearchFetchingSuccessfulState):
+            final successState = state as MovieSearchFetchingSuccessfulState;
+            return ListView.builder(
+              itemCount: successState.movieDataUiModel.results!.length,
+              itemBuilder: (context, index) {
+                return MovieSearchList(
+                  title: successState.movieDataUiModel.results![index].title!,
+                  id: successState.movieDataUiModel.results![index].id!,
+                  posterPath:
+                      successState.movieDataUiModel.results![index].posterPath,
+                  voteAverage: successState
+                      .movieDataUiModel.results![index].voteAverage!,
+                  releaseDate: successState
+                      .movieDataUiModel.results![index].releaseDate!,
+                );
+              },
+            );
+
+          default:
+            return const SizedBox();
+        }
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return Container();
   }
 }
