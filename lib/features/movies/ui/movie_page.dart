@@ -2,7 +2,9 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
 
+import '../../subtitles/models/subtitles_data_ui_model.dart';
 import '../bloc/movies_bloc.dart';
 import '../models/movie_data_ui_model.dart';
 
@@ -18,28 +20,19 @@ class MoviePage extends StatefulWidget {
 
 class _MoviePageState extends State<MoviePage> {
   final MoviesBloc movieBloc = MoviesBloc();
+  final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
 
   @override
   void initState() {
     movieBloc.add(MovieViewInitialFetchEvent(widget.movieId));
+    subtitleBloc.add(SubtitleInitialFetchEvent(widget.movieId.toString()));
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          icon: const CircleAvatar(child: Icon(Icons.arrow_back_rounded)),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-      ),
       body: BlocConsumer<MoviesBloc, MoviesState>(
         bloc: movieBloc,
         listenWhen: (previous, current) => current is MoviesActionState,
@@ -78,98 +71,163 @@ class _MoviePageState extends State<MoviePage> {
     String minutesString = remainingMinutes > 0 ? '${remainingMinutes}m' : '';
     final runtime = '$hoursString $minutesString';
 
-    return Stack(
-      children: [
-        CachedNetworkImage(
-          imageUrl:
-              'https://image.tmdb.org/t/p/w500${movieDataUiModel.backdropPath}',
-          progressIndicatorBuilder: (context, url, downloadProgress) =>
-              const SizedBox(),
-          alignment: Alignment.topCenter,
-          imageBuilder: (context, imageProvider) {
-            return ShaderMask(
-              shaderCallback: (rect) {
-                return const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.black, Colors.transparent],
-                ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
-              },
-              blendMode: BlendMode.dstIn,
-              child: Image(
-                image: imageProvider,
-                fit: BoxFit.cover,
-              ),
-            );
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: SingleChildScrollView(
-            child: Column(
+    return CustomScrollView(
+      slivers: [
+        SliverAppBar(
+          elevation: 0,
+          flexibleSpace: FlexibleSpaceBar(
+            // centerTitle: true,
+            title: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Gap(200),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        movieDataUiModel.title ?? 'No Title',
-                        style: const TextStyle(
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    // IconButton(
-                    //     onPressed: () {},
-                    //     icon: const Icon(Icons.download_for_offline_rounded))
-                  ],
-                ),
-                const Gap(8),
                 Text(
-                  datePared != null
-                      ? '${datePared.year} • $genres • $runtime'
-                      : 'No Release Date',
+                  movieDataUiModel.title ?? 'No Title',
                   style: const TextStyle(
-                    fontSize: 16,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
                   ),
+                  maxLines: 1,
                 ),
-                const Gap(8),
-                if (!showMorePressed)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showMorePressed = true;
-                      });
-                    },
-                    child: Text(
-                      movieDataUiModel.overview ?? 'No Overview',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  )
-                else
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showMorePressed = false;
-                      });
-                    },
-                    child: Text(movieDataUiModel.overview ?? 'No Overview'),
-                  ),
-                ListView(
-                  padding: EdgeInsets.zero,
-                  shrinkWrap: true,
-                  children: [
-                    // Lis
-                  ],
-                )
               ],
             ),
+            background: CachedNetworkImage(
+              imageUrl:
+                  'https://image.tmdb.org/t/p/w500${movieDataUiModel.backdropPath}',
+              progressIndicatorBuilder: (context, url, downloadProgress) =>
+                  const SizedBox(),
+              alignment: Alignment.topCenter,
+              imageBuilder: (context, imageProvider) {
+                return ShaderMask(
+                  shaderCallback: (rect) {
+                    return const LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [Colors.black, Colors.transparent],
+                    ).createShader(
+                        Rect.fromLTRB(0, 0, rect.width, rect.height));
+                  },
+                  blendMode: BlendMode.dstIn,
+                  child: Image(
+                    image: imageProvider,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              },
+            ),
+          ),
+          pinned: true,
+          expandedHeight: 200,
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate(
+            (context, index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        datePared != null
+                            ? '${datePared.year} • $genres • $runtime'
+                            : 'No Release Date',
+                        style: const TextStyle(
+                          fontSize: 16,
+                        ),
+                      ),
+                      const Gap(8),
+                      if (!showMorePressed)
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showMorePressed = true;
+                            });
+                          },
+                          child: Text(
+                            movieDataUiModel.overview ?? 'No Overview',
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        )
+                      else
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              showMorePressed = false;
+                            });
+                          },
+                          child:
+                              Text(movieDataUiModel.overview ?? 'No Overview'),
+                        ),
+                      BlocConsumer<SubtitleBloc, SubtitleState>(
+                        bloc: subtitleBloc,
+                        listenWhen: (previous, current) =>
+                            current is SubtitleActionState,
+                        buildWhen: (previous, current) =>
+                            current is! SubtitleActionState,
+                        listener: (context, state) {},
+                        builder: (context, state) {
+                          switch (state.runtimeType) {
+                            case const (SubtitleFetchingLoadingState):
+                              return const Center(
+                                  child: CircularProgressIndicator());
+
+                            case const (SubtitleFetchingSuccessfulState):
+                              final successState =
+                                  state as SubtitleFetchingSuccessfulState;
+                              return _buildSubtitleView(
+                                  successState.subtitlesDataUiModel);
+
+                            default:
+                              return const SizedBox();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            childCount: 1,
           ),
         ),
+      ],
+    );
+  }
+
+  _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
+    return Column(
+      children: [
+        const Gap(16),
+        const Divider(),
+        const Gap(16),
+        const Text(
+          'Subtitles',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const Gap(8),
+        if (subtitlesDataUiModel.subtitles!.isEmpty ||
+            subtitlesDataUiModel.subtitles == null)
+          const Text('No Subtitles Found')
+        else
+          Column(
+            children: subtitlesDataUiModel.subtitles!
+                .map(
+                  (e) => ListTile(
+                    title: Text(e.lang!),
+                    subtitle: Text(e.name!),
+                    trailing: IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.download_for_offline_rounded),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
       ],
     );
   }

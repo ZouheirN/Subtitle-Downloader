@@ -9,7 +9,7 @@ class MoviesRepo {
   static Dio dio = Dio();
   static String? tmdbApiKey = dotenv.env['TMBD_API_KEY'];
 
-  static Future<TrendingMoviesDataUiModel> fetchTrendingMovies() async {
+  static Future<TrendingMoviesDataUiModel?> fetchTrendingMovies() async {
     try {
       Response response = await dio.get(
         'https://api.themoviedb.org/3/trending/movie/week?language=en-US',
@@ -23,7 +23,7 @@ class MoviesRepo {
       return TrendingMoviesDataUiModel.fromJson(response.data);
     } on DioException catch (e) {
       logger.e(e.toString());
-      return TrendingMoviesDataUiModel();
+      return null;
     }
   }
 

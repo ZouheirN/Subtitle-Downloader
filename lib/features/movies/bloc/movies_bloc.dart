@@ -8,6 +8,7 @@ import '../models/trending_movies_data_ui_model.dart';
 import '../repos/movies_repo.dart';
 
 part 'movies_event.dart';
+
 part 'movies_state.dart';
 
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
@@ -20,10 +21,14 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       TrendingMoviesInitialFetchEvent event, Emitter<MoviesState> emit) async {
     emit(TrendingMoviesFetchingLoadingState());
 
-    TrendingMoviesDataUiModel trendingMoviesDataUiModel =
+    TrendingMoviesDataUiModel? trendingMoviesDataUiModel =
         await MoviesRepo.fetchTrendingMovies();
 
-    emit(TrendingMoviesFetchingSuccessfulState(trendingMoviesDataUiModel));
+    if (trendingMoviesDataUiModel == null) {
+      emit(TrendingMoviesFetchingErrorState());
+    } else {
+      emit(TrendingMoviesFetchingSuccessfulState(trendingMoviesDataUiModel));
+    }
   }
 
   Future<FutureOr<void>> movieViewInitialFetchEvent(
