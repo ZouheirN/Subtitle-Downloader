@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
@@ -26,6 +24,7 @@ class SubtitlesRepo {
           'tmdb_id': tmdbId,
           'languages': language,
           'type': type,
+          'subs_per_page': 30,
         },
       );
 
