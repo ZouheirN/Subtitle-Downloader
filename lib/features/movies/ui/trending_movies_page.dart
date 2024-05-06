@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/components/movie_search_list.dart';
 import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
+import 'package:subtitle_downloader/hive/recent_searches_box.dart';
 
 import '../bloc/movies_bloc.dart';
 
@@ -152,6 +153,9 @@ class MySearchDelegate extends SearchDelegate {
   Widget buildResults(BuildContext context) {
     moviesBloc.add(MovieSearchInitialFetchEvent(query));
 
+    // add to recent searches
+    RecentSearchesBox.addSearch(query);
+
     return BlocConsumer<MoviesBloc, MoviesState>(
       bloc: moviesBloc,
       listenWhen: (previous, current) => current is MoviesActionState,
@@ -189,6 +193,27 @@ class MySearchDelegate extends SearchDelegate {
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    return Container();
+    final searches = RecentSearchesBox.getSearches();
+    return StatefulBuilder(
+      builder: (context, setState) => ListView.builder(
+        itemCount: searches.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(searches[index]),
+            onTap: () {
+              query = searches[index];
+            },
+            leading: const Icon(Icons.history_rounded),
+            trailing: IconButton(
+              onPressed: () {
+                RecentSearchesBox.removeSearch(searches[index]);
+                setState(() => searches.removeAt(index));
+              },
+              icon: const Icon(Icons.delete_rounded),
+            ),
+          );
+        },
+      ),
+    );
   }
 }

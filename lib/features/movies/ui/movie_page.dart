@@ -151,6 +151,7 @@ class _MoviePageState extends State<MoviePage> {
                           fontSize: 16,
                         ),
                       ),
+                      _buildRatingView(movieDataUiModel),
                       const Gap(8),
                       if (!showMorePressed)
                         GestureDetector(
@@ -231,7 +232,23 @@ class _MoviePageState extends State<MoviePage> {
     );
   }
 
-  _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
+  Text _buildRatingView(MovieDataUiModel movieDataUiModel) {
+    final rating = movieDataUiModel.voteAverage;
+
+    return Text(
+      rating?.toStringAsFixed(1) ?? 'No Rating',
+      style: TextStyle(
+        fontSize: 16,
+        color: rating! > 7
+            ? Colors.green
+            : rating > 5
+                ? Colors.amber
+                : Colors.red,
+      ),
+    );
+  }
+
+  Widget _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
     return Align(
       alignment: Alignment.center,
       child: Column(
