@@ -1,5 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:subtitle_downloader/features/subtitles/models/subtitles_data_ui_model.dart';
 
 import '../../../main.dart';
@@ -28,6 +33,42 @@ class SubtitlesRepo {
     } on DioException catch (e) {
       logger.e(e.toString());
       return null;
+    }
+  }
+
+  static Future<int> downloadSubtitles({
+    required String url,
+    required String name,
+  }) async {
+    try {
+      String newName = name.replaceFirst("SUBDL::", "");
+
+      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+      if (selectedDirectory == null) return 0; // Canceled
+
+      final tempZipFilePath =
+          '${(await getTemporaryDirectory()).path}/$newName';
+
+      await dio.download(
+        'https://dl.subdl.com$url',
+        tempZipFilePath,
+      );
+
+      // extract the archive
+      final zipFile = File(tempZipFilePath);
+      final destinationDir = Directory(selectedDirectory);
+      try {
+        ZipFile.extractToDirectory(
+            zipFile: zipFile, destinationDir: destinationDir);
+      } catch (e) {
+        logger.e(e.toString());
+        return -1; // Error
+      }
+
+      return 1; // Success
+    } on DioException catch (e) {
+      logger.e(e.toString());
+      return -1; // Error
     }
   }
 }

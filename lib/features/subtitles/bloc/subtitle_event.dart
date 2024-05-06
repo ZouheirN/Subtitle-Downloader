@@ -10,3 +10,10 @@ class SubtitleInitialFetchEvent extends SubtitleEvent {
 
   SubtitleInitialFetchEvent(this.movieId, this.language, this.type);
 }
+
+class SubtitleDownloadEvent extends SubtitleEvent {
+  final String url;
+  final String name;
+
+  SubtitleDownloadEvent(this.url, this.name);
+}

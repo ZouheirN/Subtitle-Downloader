@@ -184,7 +184,24 @@ class _MoviePageState extends State<MoviePage> {
                             current is SubtitleActionState,
                         buildWhen: (previous, current) =>
                             current is! SubtitleActionState,
-                        listener: (context, state) {},
+                        listener: (context, state) {
+                          switch (state.runtimeType) {
+                            case const (SubtitleDownloadSuccessState):
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Subtitle Downloaded'),
+                                ),
+                              );
+                              break;
+                            case const (SubtitleDownloadErrorState):
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Subtitle Download Failed'),
+                                ),
+                              );
+                              break;
+                          }
+                        },
                         builder: (context, state) {
                           switch (state.runtimeType) {
                             case const (SubtitleFetchingLoadingState):
@@ -234,10 +251,14 @@ class _MoviePageState extends State<MoviePage> {
                       (e) => ListTile(
                         title: Text(e.releaseName!),
                         subtitle: Text('Author: ${e.author!}'),
-                        // trailing: IconButton(
-                        //   onPressed: () {},
-                        //   icon: const Icon(Icons.download_for_offline_rounded),
-                        // ),
+                        onTap: () {
+                          subtitleBloc.add(
+                            SubtitleDownloadEvent(
+                              e.url!,
+                              e.name!,
+                            ),
+                          );
+                        },
                       ),
                     )
                     .toList(),

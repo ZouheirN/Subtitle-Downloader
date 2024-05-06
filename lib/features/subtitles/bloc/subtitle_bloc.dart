@@ -12,6 +12,7 @@ part 'subtitle_state.dart';
 class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
   SubtitleBloc() : super(SubtitleInitial()) {
     on<SubtitleInitialFetchEvent>(subtitleInitialFetchEvent);
+    on<SubtitleDownloadEvent>(subtitleDownloadEvent);
   }
 
   Future<FutureOr<void>> subtitleInitialFetchEvent(
@@ -29,6 +30,20 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
       emit(SubtitleFetchingErrorState());
     } else {
       emit(SubtitleFetchingSuccessfulState(subtitlesDataUiModel));
+    }
+  }
+
+  Future<FutureOr<void>> subtitleDownloadEvent(
+      SubtitleDownloadEvent event, Emitter<SubtitleState> emit) async {
+    int response = await SubtitlesRepo.downloadSubtitles(
+      url: event.url,
+      name: event.name,
+    );
+
+    if (response == 1) {
+      emit(SubtitleDownloadSuccessState());
+    } else if (response == -1) {
+      emit(SubtitleDownloadErrorState());
     }
   }
 }
