@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/hive/settings_box.dart';
 
@@ -44,6 +45,13 @@ class ProfilePage extends StatelessWidget {
                     );
                   },
                 ),
+                ListTile(
+                  title: const Text('View Downloaded Subtitles History'),
+                  leading: const Icon(Icons.history_rounded),
+                  onTap: () {
+                    context.pushNamed('Downloaded Subtitles History');
+                  },
+                )
               ],
             ),
           ),

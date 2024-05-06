@@ -4,7 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:cr_file_saver/file_saver.dart';
 import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/subtitles/models/subtitles_data_ui_model.dart';
-import 'package:subtitle_downloader/hive/download_subtitles_box.dart';
+import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
 import '../repos/subtitles_repo.dart';
 
@@ -49,7 +49,7 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
       );
 
       if (response == 1) {
-        DownloadSubtitlesBox.addDownloadedSubtitle(event.url);
+        DownloadedSubtitlesBox.addDownloadedSubtitle(event.url, event.releaseName, event.author, event.movieName);
         emit(SubtitleDownloadSuccessState());
       } else if (response == -1) {
         emit(SubtitleDownloadErrorState());

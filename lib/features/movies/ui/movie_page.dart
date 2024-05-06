@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
-import 'package:subtitle_downloader/hive/download_subtitles_box.dart';
+import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
 import '../../subtitles/models/subtitles_data_ui_model.dart';
 import '../bloc/movies_bloc.dart';
@@ -321,7 +321,7 @@ class _MoviePageState extends State<MoviePage> {
                   children: filteredSubtitles
                       .map(
                         (e) => ValueListenableBuilder(
-                            valueListenable: DownloadSubtitlesBox
+                            valueListenable: DownloadedSubtitlesBox
                                 .downloadedSubtitlesBox
                                 .listenable(),
                             builder: (context, value, child) {
@@ -330,13 +330,13 @@ class _MoviePageState extends State<MoviePage> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: DownloadSubtitlesBox
+                                    color: DownloadedSubtitlesBox
                                             .isSubtitleDownloaded(e.url!)
                                         ? Colors.grey[100]!.withOpacity(0.1)
                                         : Colors.transparent,
                                   ),
                                   color:
-                                      DownloadSubtitlesBox.isSubtitleDownloaded(
+                                  DownloadedSubtitlesBox.isSubtitleDownloaded(
                                               e.url!)
                                           ? Colors.grey[100]?.withOpacity(0.1)
                                           : null,
@@ -345,7 +345,7 @@ class _MoviePageState extends State<MoviePage> {
                                   title: Text(
                                     e.releaseName!,
                                     style: TextStyle(
-                                      fontWeight: DownloadSubtitlesBox
+                                      fontWeight: DownloadedSubtitlesBox
                                               .isSubtitleDownloaded(e.url!)
                                           ? FontWeight.bold
                                           : FontWeight.normal,
@@ -357,6 +357,9 @@ class _MoviePageState extends State<MoviePage> {
                                       SubtitleDownloadEvent(
                                         e.url!,
                                         e.name!,
+                                        e.author!,
+                                        e.releaseName!,
+                                        subtitlesDataUiModel.results!.first.name!,
                                       ),
                                     );
                                   },

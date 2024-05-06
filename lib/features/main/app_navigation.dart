@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
 import 'package:subtitle_downloader/features/movies/ui/trending_movies_page.dart';
 import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
+import 'package:subtitle_downloader/features/subtitles/ui/downloaded_subtitles_history.dart';
 import 'package:subtitle_downloader/features/tv/ui/trending_tv_page.dart';
 
 import '../movies/ui/movie_page.dart';
@@ -83,6 +84,17 @@ class AppNavigation {
                 builder: (context, state) {
                   return const ProfilePage();
                 },
+                routes: [
+                  // View Downloaded Subtitles History
+                  GoRoute(
+                    path: 'downloaded-subtitles-history',
+                    name: 'Downloaded Subtitles History',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      return const DownloadedSubtitlesHistory();
+                    },
+                  ),
+                ],
               ),
             ],
           ),

@@ -14,6 +14,9 @@ class SubtitleInitialFetchEvent extends SubtitleEvent {
 class SubtitleDownloadEvent extends SubtitleEvent {
   final String url;
   final String name;
+  final String author;
+  final String releaseName;
+  final String movieName;
 
-  SubtitleDownloadEvent(this.url, this.name);
+  SubtitleDownloadEvent(this.url, this.name, this.author, this.releaseName, this.movieName);
 }
