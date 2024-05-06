@@ -3,7 +3,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
-import 'package:subtitle_downloader/widgets/movie_search_list.dart';
+import 'package:subtitle_downloader/components/movie_search_list.dart';
 
 import '../bloc/movies_bloc.dart';
 import 'movie_page.dart';

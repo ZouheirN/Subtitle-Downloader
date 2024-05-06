@@ -35,8 +35,6 @@ class MovieSearchList extends StatelessWidget {
       title: Text(title),
       subtitle: Text("$year • ${voteAverage.toStringAsFixed(1)}"),
       onTap: () {
-        logger.i(id);
-
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (context) {

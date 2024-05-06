@@ -10,7 +10,8 @@ class SubtitlesRepo {
 
   static Future<SubtitlesDataUiModel?> fetchSubtitles({
     required String tmdbId,
-    String languages = 'EN',
+    required String language,
+    required String type,
   }) async {
     try {
       Response response = await dio.get(
@@ -18,7 +19,8 @@ class SubtitlesRepo {
         queryParameters: {
           'api_key': subdlApiKey,
           'tmdb_id': tmdbId,
-          'languages': languages
+          'languages': language,
+          'type': type,
         },
       );
 

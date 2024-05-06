@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:subtitle_downloader/components/language_dropdown.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
 
 import '../../subtitles/models/subtitles_data_ui_model.dart';
@@ -22,11 +23,31 @@ class _MoviePageState extends State<MoviePage> {
   final MoviesBloc movieBloc = MoviesBloc();
   final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
+  String? oldLanguage;
+
+  void onLanguageChanged(String language) {
+    if (oldLanguage == language) return;
+    oldLanguage = language;
+
+    subtitleBloc.add(
+      SubtitleInitialFetchEvent(
+        widget.movieId.toString(),
+        language,
+        'movie',
+      ),
+    );
+  }
 
   @override
   void initState() {
     movieBloc.add(MovieViewInitialFetchEvent(widget.movieId));
-    subtitleBloc.add(SubtitleInitialFetchEvent(widget.movieId.toString()));
+    subtitleBloc.add(
+      SubtitleInitialFetchEvent(
+        widget.movieId.toString(),
+        'EN',
+        'movie',
+      ),
+    );
     super.initState();
   }
 
@@ -77,19 +98,13 @@ class _MoviePageState extends State<MoviePage> {
           elevation: 0,
           flexibleSpace: FlexibleSpaceBar(
             // centerTitle: true,
-            title: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  movieDataUiModel.title ?? 'No Title',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  maxLines: 1,
-                ),
-              ],
+            title: Text(
+              movieDataUiModel.title ?? 'No Title',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
             ),
             background: CachedNetworkImage(
               imageUrl:
@@ -160,6 +175,9 @@ class _MoviePageState extends State<MoviePage> {
                           child:
                               Text(movieDataUiModel.overview ?? 'No Overview'),
                         ),
+                      const Gap(16),
+                      const Divider(),
+                      const Gap(16),
                       BlocConsumer<SubtitleBloc, SubtitleState>(
                         bloc: subtitleBloc,
                         listenWhen: (previous, current) =>
@@ -199,15 +217,9 @@ class _MoviePageState extends State<MoviePage> {
   _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
     return Column(
       children: [
-        const Gap(16),
-        const Divider(),
-        const Gap(16),
-        const Text(
-          'Subtitles',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+        LanguageDropdown(
+          onLanguageChanged: onLanguageChanged,
+          initialLanguage: oldLanguage ?? 'EN',
         ),
         const Gap(8),
         if (subtitlesDataUiModel.subtitles!.isEmpty ||
@@ -215,18 +227,22 @@ class _MoviePageState extends State<MoviePage> {
           const Text('No Subtitles Found')
         else
           Column(
-            children: subtitlesDataUiModel.subtitles!
-                .map(
-                  (e) => ListTile(
-                    title: Text(e.lang!),
-                    subtitle: Text(e.name!),
-                    trailing: IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.download_for_offline_rounded),
-                    ),
-                  ),
-                )
-                .toList(),
+            children: [
+              Column(
+                children: subtitlesDataUiModel.subtitles!
+                    .map(
+                      (e) => ListTile(
+                        title: Text(e.releaseName!),
+                        subtitle: Text('Author: ${e.author!}'),
+                        // trailing: IconButton(
+                        //   onPressed: () {},
+                        //   icon: const Icon(Icons.download_for_offline_rounded),
+                        // ),
+                      ),
+                    )
+                    .toList(),
+              ),
+            ],
           ),
       ],
     );

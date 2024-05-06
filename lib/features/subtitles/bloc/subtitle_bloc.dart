@@ -21,6 +21,8 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
     SubtitlesDataUiModel? subtitlesDataUiModel =
         await SubtitlesRepo.fetchSubtitles(
       tmdbId: event.movieId,
+      language: event.language,
+      type: event.type,
     );
 
     if (subtitlesDataUiModel == null) {
