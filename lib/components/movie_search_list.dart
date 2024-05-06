@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:subtitle_downloader/features/movies/ui/movie_page.dart';
-import 'package:subtitle_downloader/main.dart';
+import 'package:go_router/go_router.dart';
 
 class MovieSearchList extends StatelessWidget {
   final String? posterPath;
@@ -35,13 +34,10 @@ class MovieSearchList extends StatelessWidget {
       title: Text(title),
       subtitle: Text("$year • ${voteAverage.toStringAsFixed(1)}"),
       onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (context) {
-              return MoviePage(movieId: id, movieName: title);
-            },
-          ),
-        );
+        context.pushNamed('View Movie', pathParameters: {
+          'movieId': id.toString(),
+          'movieName': title,
+        });
       },
     );
   }

@@ -232,40 +232,43 @@ class _MoviePageState extends State<MoviePage> {
   }
 
   _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
-    return Column(
-      children: [
-        LanguageDropdown(
-          onLanguageChanged: onLanguageChanged,
-          initialLanguage: oldLanguage ?? 'EN',
-        ),
-        const Gap(8),
-        if (subtitlesDataUiModel.subtitles!.isEmpty ||
-            subtitlesDataUiModel.subtitles == null)
-          const Text('No Subtitles Found')
-        else
-          Column(
-            children: [
-              Column(
-                children: subtitlesDataUiModel.subtitles!
-                    .map(
-                      (e) => ListTile(
-                        title: Text(e.releaseName!),
-                        subtitle: Text('Uploader: ${e.author!}'),
-                        onTap: () {
-                          subtitleBloc.add(
-                            SubtitleDownloadEvent(
-                              e.url!,
-                              e.name!,
-                            ),
-                          );
-                        },
-                      ),
-                    )
-                    .toList(),
-              ),
-            ],
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          LanguageDropdown(
+            onLanguageChanged: onLanguageChanged,
+            initialLanguage: oldLanguage ?? 'EN',
           ),
-      ],
+          const Gap(8),
+          if (subtitlesDataUiModel.subtitles!.isEmpty ||
+              subtitlesDataUiModel.subtitles == null)
+            const Text('No Subtitles Found')
+          else
+            Column(
+              children: [
+                Column(
+                  children: subtitlesDataUiModel.subtitles!
+                      .map(
+                        (e) => ListTile(
+                          title: Text(e.releaseName!),
+                          subtitle: Text('Uploader: ${e.author!}'),
+                          onTap: () {
+                            subtitleBloc.add(
+                              SubtitleDownloadEvent(
+                                e.url!,
+                                e.name!,
+                              ),
+                            );
+                          },
+                        ),
+                      )
+                      .toList(),
+                ),
+              ],
+            ),
+        ],
+      ),
     );
   }
 }

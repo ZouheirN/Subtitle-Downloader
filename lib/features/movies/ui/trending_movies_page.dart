@@ -2,11 +2,11 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
+import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/components/movie_search_list.dart';
+import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
 
 import '../bloc/movies_bloc.dart';
-import 'movie_page.dart';
 
 class TrendingMoviesPage extends StatefulWidget {
   const TrendingMoviesPage({super.key});
@@ -28,7 +28,7 @@ class _TrendingMoviesPageState extends State<TrendingMoviesPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trending Movies'),
+        title: const Text('Movies'),
         actions: [
           IconButton(
               onPressed: () {
@@ -53,23 +53,19 @@ class _TrendingMoviesPageState extends State<TrendingMoviesPage> {
               return SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+                  children: <Widget>[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Text(
+                        'Trending Movies',
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
                     _buildTrendingMoviesCarousel(
                         successState.trendingMoviesDataUiModel),
-                    // const Padding(
-                    //   padding: EdgeInsets.all(16.0),
-                    //   child: Column(
-                    //     children: [
-                    //       Text(
-                    //         'Search',
-                    //         style: TextStyle(
-                    //           fontSize: 32,
-                    //           fontWeight: FontWeight.bold,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // )
                   ],
                 ),
               );
@@ -100,14 +96,11 @@ class _TrendingMoviesPageState extends State<TrendingMoviesPage> {
         itemBuilder: (context, index) {
           return GestureDetector(
             onTap: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => MoviePage(
-                    movieId: trendingMoviesDataUiModel.results![index].id!,
-                    movieName: trendingMoviesDataUiModel.results![index].title!,
-                  ),
-                ),
-              );
+              context.pushNamed('View Movie', pathParameters: {
+                'movieId':
+                    trendingMoviesDataUiModel.results![index].id.toString(),
+                'movieName': trendingMoviesDataUiModel.results![index].title!,
+              });
             },
             child: CachedNetworkImage(
               imageUrl:
