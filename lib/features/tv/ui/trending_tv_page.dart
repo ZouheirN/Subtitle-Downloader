@@ -10,6 +10,11 @@ class TrendingTvPage extends StatefulWidget {
 class _TrendingTvPageState extends State<TrendingTvPage> {
   @override
   Widget build(BuildContext context) {
-    return const Placeholder();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('TV'),
+      ),
+      body: const Placeholder(),
+    );
   }
 }

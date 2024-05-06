@@ -42,6 +42,10 @@ class _MainPageState extends State<MainPage> {
             icon: Icon(Icons.tv_rounded),
             label: 'TV',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_rounded),
+            label: 'Profile',
+          ),
         ],
       ),
     );

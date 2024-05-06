@@ -1,42 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 
 import 'features/main/app_navigation.dart';
-final logger = Logger();
 
-// GoRouter _router = GoRouter(routes: [
-//   ShellRoute(
-//     routes: [
-//       GoRoute(
-//         path: '/trending-movies',
-//         builder: (context, state) => const TrendingMoviesPage(),
-//       ),
-//       // GoRoute(
-//       //   path: '/trending-tv',
-//       //   builder: (context, state) => const TrendingMoviesPage(),
-//       // ),
-//     ],
-//     builder: (context, state, child) {
-//       return Scaffold(
-//         appBar: AppBar(
-//           title: const Text('Subtitle Downloader'),
-//         ),
-//         body: child,
-//       );
-//     },
-//   ),
-//   GoRoute(
-//     path: '/view-movie/:movieId/:movieName',
-//     builder: (context, state) => MoviePage(
-//       movieId: int.parse(state.pathParameters['movieId']!),
-//       movieName: state.pathParameters['movieName']!,
-//     ),
-//   ),
-// ]);
+final logger = Logger();
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
+
+  await Hive.initFlutter();
+  await Hive.openBox('settingsBox');
 
   runApp(const MyApp());
 }
@@ -46,11 +21,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      darkTheme: ThemeData.dark(),
-      themeMode: ThemeMode.dark,
-      routerConfig: AppNavigation.router,
+    return ValueListenableBuilder(
+      valueListenable: Hive.box('settingsBox').listenable(),
+      builder: (BuildContext context, Box<dynamic> value, Widget? child) {
+        // get the theme mode from the settings box
+        final themeMode = value.get('themeMode', defaultValue: 'light');
+
+        return MaterialApp.router(
+          debugShowCheckedModeBanner: false,
+          darkTheme: ThemeData.dark(),
+          themeMode: themeMode == 'dark' ? ThemeMode.dark : ThemeMode.light,
+          routerConfig: AppNavigation.router,
+        );
+      },
     );
   }
 }

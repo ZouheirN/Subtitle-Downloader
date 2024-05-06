@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
 import 'package:subtitle_downloader/features/movies/ui/trending_movies_page.dart';
+import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
 import 'package:subtitle_downloader/features/tv/ui/trending_tv_page.dart';
 
 import '../movies/ui/movie_page.dart';
@@ -15,6 +16,8 @@ class AppNavigation {
       GlobalKey<NavigatorState>(debugLabel: 'shellMovies');
   static final _rootNavigatorTV =
       GlobalKey<NavigatorState>(debugLabel: 'shellTV');
+  static final _rootNavigatorProfile =
+      GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
 
   // Go Router Configuration
   static final GoRouter router = GoRouter(
@@ -57,7 +60,6 @@ class AppNavigation {
               ),
             ],
           ),
-
           // Branch TV
           StatefulShellBranch(
             navigatorKey: _rootNavigatorTV,
@@ -67,6 +69,19 @@ class AppNavigation {
                 name: 'TV',
                 builder: (context, state) {
                   return const TrendingTvPage();
+                },
+              ),
+            ],
+          ),
+          // Branch Profile
+          StatefulShellBranch(
+            navigatorKey: _rootNavigatorProfile,
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: 'Profile',
+                builder: (context, state) {
+                  return const ProfilePage();
                 },
               ),
             ],
