@@ -1,6 +1,5 @@
-import 'package:archive/archive_io.dart';
+import 'package:cr_file_saver/file_saver.dart';
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:subtitle_downloader/features/subtitles/models/subtitles_data_ui_model.dart';
@@ -40,22 +39,22 @@ class SubtitlesRepo {
     required String name,
   }) async {
     try {
-      String newName = name.replaceFirst("SUBDL::", "");
+      String zipName = name.replaceFirst("SUBDL::", "");
+      final tempDirectory = await getTemporaryDirectory();
 
-      String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
-      if (selectedDirectory == null) return 0; // Canceled
-
-      final tempZipFilePath =
-          '${(await getTemporaryDirectory()).path}/$newName';
+      final tempZipFilePath = '${tempDirectory.path}/$zipName';
 
       await dio.download(
         'https://dl.subdl.com$url',
         tempZipFilePath,
       );
 
-      // extract the archive
-      extractFileToDisk(tempZipFilePath, selectedDirectory);
-
+      await CRFileSaver.saveFileWithDialog(
+        SaveFileDialogParams(
+          sourceFilePath: tempZipFilePath,
+          destinationFileName: zipName,
+        ),
+      );
       return 1; // Success
     } on DioException catch (e) {
       logger.e(e.toString());

@@ -17,6 +17,10 @@ class SubtitleFetchingSuccessfulState extends SubtitleState {
   SubtitleFetchingSuccessfulState(this.subtitlesDataUiModel);
 }
 
+class SubtitleDownloadStartedState extends SubtitleActionState {}
+
 class SubtitleDownloadSuccessState extends SubtitleActionState {}
 
 class SubtitleDownloadErrorState extends SubtitleActionState {}
+
+class SubtitleDownloadPermissionNotGrantedState extends SubtitleActionState {}

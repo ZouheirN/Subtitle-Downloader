@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:cr_file_saver/file_saver.dart';
 import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/subtitles/models/subtitles_data_ui_model.dart';
+import 'package:subtitle_downloader/hive/download_subtitles_box.dart';
 
 import '../repos/subtitles_repo.dart';
 
 part 'subtitle_event.dart';
+
 part 'subtitle_state.dart';
 
 class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
@@ -35,15 +38,24 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
 
   Future<FutureOr<void>> subtitleDownloadEvent(
       SubtitleDownloadEvent event, Emitter<SubtitleState> emit) async {
-    int response = await SubtitlesRepo.downloadSubtitles(
-      url: event.url,
-      name: event.name,
-    );
+    final granted = await CRFileSaver.requestWriteExternalStoragePermission();
 
-    if (response == 1) {
-      emit(SubtitleDownloadSuccessState());
-    } else if (response == -1) {
-      emit(SubtitleDownloadErrorState());
+    if (granted) {
+      emit(SubtitleDownloadStartedState());
+
+      int response = await SubtitlesRepo.downloadSubtitles(
+        url: event.url,
+        name: event.name,
+      );
+
+      if (response == 1) {
+        DownloadSubtitlesBox.addDownloadedSubtitle(event.url);
+        emit(SubtitleDownloadSuccessState());
+      } else if (response == -1) {
+        emit(SubtitleDownloadErrorState());
+      }
+    } else {
+      emit(SubtitleDownloadPermissionNotGrantedState());
     }
   }
 }

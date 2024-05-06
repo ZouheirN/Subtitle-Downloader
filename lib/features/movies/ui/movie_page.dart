@@ -2,8 +2,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
+import 'package:subtitle_downloader/hive/download_subtitles_box.dart';
 
 import '../../subtitles/models/subtitles_data_ui_model.dart';
 import '../bloc/movies_bloc.dart';
@@ -24,6 +26,8 @@ class _MoviePageState extends State<MoviePage> {
   final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
   String? oldLanguage;
+
+  ValueNotifier query = ValueNotifier('');
 
   void onLanguageChanged(String language) {
     if (oldLanguage == language) return;
@@ -187,7 +191,25 @@ class _MoviePageState extends State<MoviePage> {
                             current is! SubtitleActionState,
                         listener: (context, state) {
                           switch (state.runtimeType) {
+                            case const (SubtitleDownloadPermissionNotGrantedState):
+                              ScaffoldMessenger.of(context).clearSnackBars();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Write Permissions Were Not Granted'),
+                                ),
+                              );
+                              break;
+                            case const (SubtitleDownloadStartedState):
+                              ScaffoldMessenger.of(context).clearSnackBars();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Downloading Subtitle...'),
+                                ),
+                              );
+                              break;
                             case const (SubtitleDownloadSuccessState):
+                              ScaffoldMessenger.of(context).clearSnackBars();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Subtitle Downloaded'),
@@ -195,6 +217,7 @@ class _MoviePageState extends State<MoviePage> {
                               );
                               break;
                             case const (SubtitleDownloadErrorState):
+                              ScaffoldMessenger.of(context).clearSnackBars();
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Subtitle Download Failed'),
@@ -249,40 +272,101 @@ class _MoviePageState extends State<MoviePage> {
   }
 
   Widget _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
+    final subtitles = subtitlesDataUiModel.subtitles;
+
     return Align(
       alignment: Alignment.center,
       child: Column(
         children: [
-          LanguageDropdown(
-            onLanguageChanged: onLanguageChanged,
-            initialLanguage: oldLanguage ?? 'EN',
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Language'),
+              LanguageDropdown(
+                onLanguageChanged: onLanguageChanged,
+                initialLanguage: oldLanguage ?? 'EN',
+              ),
+            ],
           ),
           const Gap(8),
-          if (subtitlesDataUiModel.subtitles!.isEmpty ||
-              subtitlesDataUiModel.subtitles == null)
+          TextField(
+            onChanged: (newQuery) {
+              setState(() {
+                query.value = newQuery;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search Subtitles',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+          const Gap(8),
+          if (subtitles == null || subtitles.isEmpty)
             const Text('No Subtitles Found')
           else
-            Column(
-              children: [
-                Column(
-                  children: subtitlesDataUiModel.subtitles!
+            ValueListenableBuilder(
+              valueListenable: query,
+              builder: (context, value, child) {
+                // filter subtitles based on query based on release name and author
+                final filteredSubtitles = subtitles.where((element) {
+                  return element.releaseName!
+                          .toLowerCase()
+                          .contains(value.toString().toLowerCase()) ||
+                      element.author!
+                          .toLowerCase()
+                          .contains(value.toString().toLowerCase());
+                }).toList();
+
+                return Column(
+                  children: filteredSubtitles
                       .map(
-                        (e) => ListTile(
-                          title: Text(e.releaseName!),
-                          subtitle: Text('Uploader: ${e.author!}'),
-                          onTap: () {
-                            subtitleBloc.add(
-                              SubtitleDownloadEvent(
-                                e.url!,
-                                e.name!,
-                              ),
-                            );
-                          },
-                        ),
+                        (e) => ValueListenableBuilder(
+                            valueListenable: DownloadSubtitlesBox
+                                .downloadedSubtitlesBox
+                                .listenable(),
+                            builder: (context, value, child) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(vertical: 2),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: DownloadSubtitlesBox
+                                            .isSubtitleDownloaded(e.url!)
+                                        ? Colors.grey[100]!.withOpacity(0.1)
+                                        : Colors.transparent,
+                                  ),
+                                  color:
+                                      DownloadSubtitlesBox.isSubtitleDownloaded(
+                                              e.url!)
+                                          ? Colors.grey[100]?.withOpacity(0.1)
+                                          : null,
+                                ),
+                                child: ListTile(
+                                  title: Text(
+                                    e.releaseName!,
+                                    style: TextStyle(
+                                      fontWeight: DownloadSubtitlesBox
+                                              .isSubtitleDownloaded(e.url!)
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                  subtitle: Text('Uploader: ${e.author!}'),
+                                  onTap: () {
+                                    subtitleBloc.add(
+                                      SubtitleDownloadEvent(
+                                        e.url!,
+                                        e.name!,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }),
                       )
                       .toList(),
-                ),
-              ],
+                );
+              },
             ),
         ],
       ),

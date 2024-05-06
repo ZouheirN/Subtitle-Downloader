@@ -201,6 +201,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.1"
+  cr_file_saver:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: "fix/incorrect_file_name"
+      resolved-ref: d07417d2a0078a2715ac70a65edddbfe286d0282
+      url: "https://github.com/dhruvanbhalara/cr_file_saver"
+    source: git
+    version: "0.0.2+1"
   cross_file:
     dependency: transitive
     description:
@@ -281,6 +290,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  flex_color_scheme:
+    dependency: "direct main"
+    description:
+      name: flex_color_scheme
+      sha256: "32914024a4f404d90ff449f58d279191675b28e7c08824046baf06826e99d984"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.3.1"
+  flex_seed_scheme:
+    dependency: transitive
+    description:
+      name: flex_seed_scheme
+      sha256: "4cee2f1d07259f77e8b36f4ec5f35499d19e74e17c7dce5b819554914082bc01"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   flutter:
     dependency: "direct main"
     description: flutter
