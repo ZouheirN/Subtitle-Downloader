@@ -250,7 +250,7 @@ class _MoviePageState extends State<MoviePage> {
                     .map(
                       (e) => ListTile(
                         title: Text(e.releaseName!),
-                        subtitle: Text('Author: ${e.author!}'),
+                        subtitle: Text('Uploader: ${e.author!}'),
                         onTap: () {
                           subtitleBloc.add(
                             SubtitleDownloadEvent(

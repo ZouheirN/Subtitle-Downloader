@@ -1,8 +1,8 @@
 import 'dart:io';
 
+import 'package:archive/archive_io.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:subtitle_downloader/features/subtitles/models/subtitles_data_ui_model.dart';
@@ -55,15 +55,7 @@ class SubtitlesRepo {
       );
 
       // extract the archive
-      final zipFile = File(tempZipFilePath);
-      final destinationDir = Directory(selectedDirectory);
-      try {
-        ZipFile.extractToDirectory(
-            zipFile: zipFile, destinationDir: destinationDir);
-      } catch (e) {
-        logger.e(e.toString());
-        return -1; // Error
-      }
+      extractFileToDisk(tempZipFilePath, selectedDirectory);
 
       return 1; // Success
     } on DioException catch (e) {
