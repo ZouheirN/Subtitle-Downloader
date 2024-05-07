@@ -6,6 +6,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
+import 'package:subtitle_downloader/hive/settings_box.dart';
 
 import '../../subtitles/models/subtitles_data_ui_model.dart';
 import '../bloc/movies_bloc.dart';
@@ -25,7 +26,7 @@ class _MoviePageState extends State<MoviePage> {
   final MoviesBloc movieBloc = MoviesBloc();
   final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
-  String? oldLanguage;
+  String? oldLanguage = SettingsBox.getDefaultLanguage();
 
   ValueNotifier query = ValueNotifier('');
 

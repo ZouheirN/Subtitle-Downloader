@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
-class DownloadedSubtitlesHistory extends StatelessWidget {
-  const DownloadedSubtitlesHistory({super.key});
+class DownloadedSubtitlesHistoryPage extends StatelessWidget {
+  const DownloadedSubtitlesHistoryPage({super.key});
 
   @override
   Widget build(BuildContext context) {

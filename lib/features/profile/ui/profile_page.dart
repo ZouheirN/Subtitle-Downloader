@@ -12,6 +12,14 @@ class ProfilePage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text('Profile'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings_rounded),
+              onPressed: () {
+                context.pushNamed('Settings');
+              },
+            ),
+          ],
         ),
         body: Center(
           child: Padding(
@@ -30,21 +38,6 @@ class ProfilePage extends StatelessWidget {
                 ),
                 const Gap(20),
                 const Divider(),
-                ValueListenableBuilder(
-                  valueListenable: SettingsBox.settingsBox.listenable(),
-                  builder: (context, value, child) {
-                    return ListTile(
-                      title: Text(
-                          'Switch to ${SettingsBox.getThemeMode() == 'light' ? 'Dark' : 'Light'} Mode'),
-                      leading: SettingsBox.getThemeMode() == 'light'
-                          ? const Icon(Icons.dark_mode)
-                          : const Icon(Icons.light_mode),
-                      onTap: () {
-                        SettingsBox.toggleThemeMode();
-                      },
-                    );
-                  },
-                ),
                 ListTile(
                   title: const Text('View Downloaded Subtitles History'),
                   leading: const Icon(Icons.history_rounded),

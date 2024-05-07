@@ -3,10 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
 import 'package:subtitle_downloader/features/movies/ui/home_movies_page.dart';
 import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
-import 'package:subtitle_downloader/features/subtitles/ui/downloaded_subtitles_history.dart';
+import 'package:subtitle_downloader/features/subtitles/ui/downloaded_subtitles_history_page.dart';
 import 'package:subtitle_downloader/features/tv/ui/trending_tv_page.dart';
 
 import '../movies/ui/movie_page.dart';
+import '../profile/ui/settings_page.dart';
 
 class AppNavigation {
   static String initR = '/movies';
@@ -91,7 +92,15 @@ class AppNavigation {
                     name: 'Downloaded Subtitles History',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
-                      return const DownloadedSubtitlesHistory();
+                      return const DownloadedSubtitlesHistoryPage();
+                    },
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    name: 'Settings',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      return const SettingsPage();
                     },
                   ),
                 ],
