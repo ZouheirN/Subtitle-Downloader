@@ -17,14 +17,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.4.1"
-  archive:
-    dependency: "direct main"
-    description:
-      name: archive
-      sha256: ecf4273855368121b1caed0d10d4513c7241dfc813f7d3c8933b36622ae9b265
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.5.1"
   args:
     dependency: transitive
     description:

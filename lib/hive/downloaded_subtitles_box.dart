@@ -5,6 +5,9 @@ class DownloadedSubtitlesBox {
 
   static void addDownloadedSubtitle(
       String url, String releaseName, String author, String movieName) {
+    // do not add if already exists
+    if (downloadedSubtitlesBox.containsKey(url)) return;
+
     downloadedSubtitlesBox.put(url, {
       'releaseName': releaseName,
       'author': author,
@@ -18,7 +21,6 @@ class DownloadedSubtitlesBox {
 
   static List<Map<String, List>> getAllDownloadedSubtitles() {
     // group by movie name: [{"movieName": [{}, {}]}, {"movieName2": [{}, {}]}]
-
     List<Map<String, List>> downloadedSubtitles = [];
 
     for (var url in downloadedSubtitlesBox.keys) {
@@ -37,7 +39,7 @@ class DownloadedSubtitlesBox {
     return downloadedSubtitles;
   }
 
-  static void clearAllDownloadedSubtitle() {
+  static void clearAllDownloadedSubtitles() {
     downloadedSubtitlesBox.clear();
   }
 }
