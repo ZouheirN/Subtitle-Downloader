@@ -47,7 +47,7 @@ class SettingsPage extends StatelessWidget {
                   );
                 }),
             ListTile(
-              title: const Text('Clear Recent Searches'),
+              title: const Text('Clear Downloaded Subtitles History'),
               leading: const Icon(Icons.history_rounded),
               onTap: () {
                 DownloadedSubtitlesBox.clearAllDownloadedSubtitles();
