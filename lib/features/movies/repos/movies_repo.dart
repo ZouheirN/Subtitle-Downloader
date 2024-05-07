@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:subtitle_downloader/features/movies/models/now_playing_movies_data_ui_model.dart';
 
 import '../../../main.dart';
 import '../models/movie_data_ui_model.dart';
@@ -22,6 +23,24 @@ class MoviesRepo {
       );
 
       return TrendingMoviesDataUiModel.fromJson(response.data);
+    } on DioException catch (e) {
+      logger.e(e.toString());
+      return null;
+    }
+  }
+
+  static Future<NowPlayingMoviesDataUiModel?> fetchNowPlayingMovies() async {
+    try {
+      Response response = await dio.get(
+        'https://api.themoviedb.org/3/movie/now_playing?language=en-US&page=1',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $tmdbApiKey',
+          },
+        ),
+      );
+
+      return NowPlayingMoviesDataUiModel.fromJson(response.data);
     } on DioException catch (e) {
       logger.e(e.toString());
       return null;

@@ -18,6 +18,17 @@ class TrendingMoviesFetchingSuccessfulState extends MoviesState {
   TrendingMoviesFetchingSuccessfulState(this.trendingMoviesDataUiModel);
 }
 
+// Now Playing Movies
+class NowPlayingMoviesFetchingLoadingState extends MoviesState {}
+
+class NowPlayingMoviesFetchingErrorState extends MoviesState {}
+
+class NowPlayingMoviesFetchingSuccessfulState extends MoviesState {
+  final NowPlayingMoviesDataUiModel nowPlayingMoviesDataUiModel;
+
+  NowPlayingMoviesFetchingSuccessfulState(this.nowPlayingMoviesDataUiModel);
+}
+
 // Movie View
 class MovieViewFetchingLoadingState extends MoviesState {}
 

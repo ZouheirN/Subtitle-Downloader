@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
-import 'package:subtitle_downloader/features/movies/ui/trending_movies_page.dart';
+import 'package:subtitle_downloader/features/movies/ui/home_movies_page.dart';
 import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
 import 'package:subtitle_downloader/features/subtitles/ui/downloaded_subtitles_history.dart';
 import 'package:subtitle_downloader/features/tv/ui/trending_tv_page.dart';
@@ -41,7 +41,7 @@ class AppNavigation {
                 path: '/movies',
                 name: 'Movies',
                 builder: (context, state) {
-                  return TrendingMoviesPage(
+                  return HomeMoviesPage(
                     key: state.pageKey,
                   );
                 },

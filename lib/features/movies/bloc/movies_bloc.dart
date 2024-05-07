@@ -1,21 +1,31 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/movies/models/movie_data_ui_model.dart';
 import 'package:subtitle_downloader/features/movies/models/movie_search_data_ui_model.dart';
 
+import '../models/now_playing_movies_data_ui_model.dart';
 import '../models/trending_movies_data_ui_model.dart';
 import '../repos/movies_repo.dart';
 
 part 'movies_event.dart';
+
 part 'movies_state.dart';
 
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
   MoviesBloc() : super(MoviesInitial()) {
-    on<TrendingMoviesInitialFetchEvent>(moviesInitialFetchEvent);
+    on<TrendingMoviesInitialFetchEvent>(
+      moviesInitialFetchEvent,
+      transformer: sequential(),
+    );
     on<MovieViewInitialFetchEvent>(movieViewInitialFetchEvent);
     on<MovieSearchInitialFetchEvent>(movieSearchInitialFetchEvent);
+    on<NowPlayingMoviesInitialFetchEvent>(
+      nowPlayingMoviesInitialFetchEvent,
+      transformer: sequential(),
+    );
   }
 
   FutureOr<void> moviesInitialFetchEvent(
@@ -50,7 +60,8 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       MovieSearchInitialFetchEvent event, Emitter<MoviesState> emit) async {
     emit(MovieSearchFetchingLoadingState());
 
-    MovieSearchDataUiModel? movieSearchDataUiModel = await MoviesRepo.searchMovie(
+    MovieSearchDataUiModel? movieSearchDataUiModel =
+        await MoviesRepo.searchMovie(
       query: event.query,
     );
 
@@ -58,6 +69,22 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
       emit(MovieSearchFetchingErrorState());
     } else {
       emit(MovieSearchFetchingSuccessfulState(movieSearchDataUiModel));
+    }
+  }
+
+  Future<FutureOr<void>> nowPlayingMoviesInitialFetchEvent(
+      NowPlayingMoviesInitialFetchEvent event,
+      Emitter<MoviesState> emit) async {
+    emit(NowPlayingMoviesFetchingLoadingState());
+
+    NowPlayingMoviesDataUiModel? nowPlayingMoviesDataUiModel =
+        await MoviesRepo.fetchNowPlayingMovies();
+
+    if (nowPlayingMoviesDataUiModel == null) {
+      emit(NowPlayingMoviesFetchingErrorState());
+    } else {
+      emit(
+          NowPlayingMoviesFetchingSuccessfulState(nowPlayingMoviesDataUiModel));
     }
   }
 }

@@ -48,6 +48,7 @@ dependencies:
     git:
       url: https://github.com/dhruvanbhalara/cr_file_saver
       ref: "fix/incorrect_file_name"
+  bloc_concurrency: ^0.2.5
 
 
   # The following adds the Cupertino Icons font to your application.
