@@ -1,3 +1,7 @@
+<div align="center">
+<a href="https://wakatime.com/badge/user/5a36320a-d953-4e8f-9cb9-ae08ea9dbf4a/project/3d9b2a8c-2d12-4617-b3c0-00b752adba9e"><img src="https://wakatime.com/badge/user/5a36320a-d953-4e8f-9cb9-ae08ea9dbf4a/project/3d9b2a8c-2d12-4617-b3c0-00b752adba9e.svg" alt="wakatime"></a>
+</div>
+
 # subtitle_downloader
 
 Subtitle Downloader from Subdl
