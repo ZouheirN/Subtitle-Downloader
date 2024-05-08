@@ -91,7 +91,6 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                     return Align(
                       alignment: Alignment.center,
                       child: Wrap(
-                        spacing: 15,
                         children: successState
                             .nowPlayingMoviesDataUiModel.results!
                             .map((e) => GestureDetector(
@@ -110,8 +109,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                                             "https://image.tmdb.org/t/p/w500${e.posterPath!}",
                                         imageBuilder: (context, imageProvider) {
                                           return Container(
-                                            width: 120,
-                                            height: 180,
+                                            width: 150,
+                                            height: 225,
                                             decoration: BoxDecoration(
                                               borderRadius:
                                                   BorderRadius.circular(8),
@@ -142,7 +141,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
   Widget _buildTrendingMoviesCarousel(
       TrendingMoviesDataUiModel trendingMoviesDataUiModel) {
     return ConstrainedBox(
-      constraints: BoxConstraints.loose(const Size(double.infinity, 340)),
+      constraints: BoxConstraints.loose(const Size.fromHeight(350)),
       child: Swiper(
         autoplay: true,
         viewportFraction: 0.6,
@@ -162,6 +161,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                   "https://image.tmdb.org/t/p/w500${trendingMoviesDataUiModel.results![index].posterPath!}",
               imageBuilder: (context, imageProvider) {
                 return Container(
+                  width: 150,
+                  height: 225,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     image: DecorationImage(

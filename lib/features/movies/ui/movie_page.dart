@@ -26,7 +26,7 @@ class _MoviePageState extends State<MoviePage> {
   final MoviesBloc movieBloc = MoviesBloc();
   final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
-  String? oldLanguage = SettingsBox.getDefaultLanguage();
+  String oldLanguage = SettingsBox.getDefaultLanguage();
 
   ValueNotifier query = ValueNotifier('');
 
@@ -49,7 +49,7 @@ class _MoviePageState extends State<MoviePage> {
     subtitleBloc.add(
       SubtitleInitialFetchEvent(
         widget.movieId.toString(),
-        'EN',
+        oldLanguage,
         'movie',
       ),
     );
@@ -285,7 +285,7 @@ class _MoviePageState extends State<MoviePage> {
               const Text('Language'),
               LanguageDropdown(
                 onLanguageChanged: onLanguageChanged,
-                initialLanguage: oldLanguage ?? 'EN',
+                initialLanguage: oldLanguage,
               ),
             ],
           ),

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
-import 'package:bloc_concurrency/bloc_concurrency.dart';
 import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/movies/models/movie_data_ui_model.dart';
 import 'package:subtitle_downloader/features/movies/models/movie_search_data_ui_model.dart';
@@ -11,21 +10,14 @@ import '../models/trending_movies_data_ui_model.dart';
 import '../repos/movies_repo.dart';
 
 part 'movies_event.dart';
-
 part 'movies_state.dart';
 
 class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
   MoviesBloc() : super(MoviesInitial()) {
-    on<TrendingMoviesInitialFetchEvent>(
-      moviesInitialFetchEvent,
-      transformer: sequential(),
-    );
+    on<TrendingMoviesInitialFetchEvent>(moviesInitialFetchEvent);
     on<MovieViewInitialFetchEvent>(movieViewInitialFetchEvent);
     on<MovieSearchInitialFetchEvent>(movieSearchInitialFetchEvent);
-    on<NowPlayingMoviesInitialFetchEvent>(
-      nowPlayingMoviesInitialFetchEvent,
-      transformer: sequential(),
-    );
+    on<NowPlayingMoviesInitialFetchEvent>(nowPlayingMoviesInitialFetchEvent);
   }
 
   FutureOr<void> moviesInitialFetchEvent(
