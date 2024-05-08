@@ -3,32 +3,31 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:subtitle_downloader/components/movie_search_list.dart';
-import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
-import 'package:subtitle_downloader/hive/recent_searches_box.dart';
+import 'package:subtitle_downloader/features/tv/bloc/tv_bloc.dart';
 
-import '../bloc/movies_bloc.dart';
+import '../../movies/ui/home_movies_page.dart';
+import '../models/trending_tv_data_ui_model.dart';
 
-class HomeMoviesPage extends StatefulWidget {
-  const HomeMoviesPage({super.key});
+class HomeTvPage extends StatefulWidget {
+  const HomeTvPage({super.key});
 
   @override
-  State<HomeMoviesPage> createState() => _HomeMoviesPageState();
+  State<HomeTvPage> createState() => _HomeTvPageState();
 }
 
-class _HomeMoviesPageState extends State<HomeMoviesPage> {
+class _HomeTvPageState extends State<HomeTvPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Movies'),
+        title: const Text('TV'),
         actions: [
           IconButton(
-              onPressed: () {
-                showSearch(context: context, delegate: MySearchDelegate());
-              },
-              icon: const Icon(Icons.search_rounded))
+            onPressed: () {
+              showSearch(context: context, delegate: MySearchDelegate());
+            },
+            icon: const Icon(Icons.search_rounded),
+          )
         ],
       ),
       body: SingleChildScrollView(
@@ -38,7 +37,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Trending Movies',
+                'Trending TV Shows',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -46,20 +45,20 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
               ),
             ),
             const Gap(20),
-            BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: MoviesBloc()..add(TrendingMoviesInitialFetchEvent()),
+            BlocBuilder<TvBloc, TvState>(
+              bloc: TvBloc()..add(TrendingTvInitialFetchEvent()),
               buildWhen: (previous, current) =>
-                  current is! MoviesActionState && previous != current,
+                  current is! TvActionState && previous != current,
               builder: (context, state) {
                 switch (state.runtimeType) {
-                  case const (TrendingMoviesFetchingLoadingState):
+                  case const (TrendingTvFetchingLoadingState):
                     return const Center(child: CircularProgressIndicator());
 
-                  case const (TrendingMoviesFetchingSuccessfulState):
+                  case const (TrendingTvFetchingSuccessfulState):
                     final successState =
-                        state as TrendingMoviesFetchingSuccessfulState;
-                    return _buildTrendingMoviesCarousel(
-                        successState.trendingMoviesDataUiModel);
+                        state as TrendingTvFetchingSuccessfulState;
+                    return _buildTrendingTvCarousel(
+                        successState.trendingTvDataUiModel);
 
                   default:
                     return const SizedBox();
@@ -70,7 +69,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.0),
               child: Text(
-                'Now Playing',
+                'On The Air',
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
@@ -78,30 +77,23 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
               ),
             ),
             const Gap(20),
-            BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: MoviesBloc()..add(NowPlayingMoviesInitialFetchEvent()),
+            BlocBuilder<TvBloc, TvState>(
+              bloc: TvBloc()..add(OnTheAirTvInitialFetchEvent()),
               builder: (context, state) {
                 switch (state.runtimeType) {
-                  case const (NowPlayingMoviesFetchingLoadingState):
+                  case const (OnTheAirTvFetchingLoadingState):
                     return const Center(child: CircularProgressIndicator());
 
-                  case const (NowPlayingMoviesFetchingSuccessfulState):
+                  case const (OnTheAirTvFetchingSuccessfulState):
                     final successState =
-                        state as NowPlayingMoviesFetchingSuccessfulState;
+                        state as OnTheAirTvFetchingSuccessfulState;
                     return Align(
                       alignment: Alignment.center,
                       child: Wrap(
-                        children: successState
-                            .nowPlayingMoviesDataUiModel.results!
+                        children: successState.onTheAirTvDataUiModel.results!
                             .map(
                               (e) => GestureDetector(
-                                onTap: () {
-                                  context
-                                      .pushNamed('View Movie', pathParameters: {
-                                    'movieId': e.id.toString(),
-                                    'movieName': e.title!,
-                                  });
-                                },
+                                onTap: () {},
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 16, right: 16, bottom: 16),
@@ -159,27 +151,20 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
     );
   }
 
-  Widget _buildTrendingMoviesCarousel(
-      TrendingMoviesDataUiModel trendingMoviesDataUiModel) {
+  Widget _buildTrendingTvCarousel(TrendingTvDataUiModel trendingTvDataUiModel) {
     return ConstrainedBox(
       constraints: BoxConstraints.loose(const Size.fromHeight(350)),
       child: Swiper(
         autoplay: true,
         viewportFraction: 0.6,
         scale: 0.8,
-        itemCount: trendingMoviesDataUiModel.results!.length,
+        itemCount: trendingTvDataUiModel.results!.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: () {
-              context.pushNamed('View Movie', pathParameters: {
-                'movieId':
-                    trendingMoviesDataUiModel.results![index].id.toString(),
-                'movieName': trendingMoviesDataUiModel.results![index].title!,
-              });
-            },
+            onTap: () {},
             child: CachedNetworkImage(
               imageUrl:
-                  "https://image.tmdb.org/t/p/w500${trendingMoviesDataUiModel.results![index].posterPath!}",
+                  "https://image.tmdb.org/t/p/w500${trendingTvDataUiModel.results![index].posterPath!}",
               imageBuilder: (context, imageProvider) {
                 return Container(
                   width: 150,
@@ -208,109 +193,6 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                   ),
                 );
               },
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class MySearchDelegate extends SearchDelegate {
-  final MoviesBloc moviesBloc = MoviesBloc();
-
-  MySearchDelegate() {
-    // todo: add discover
-    // moviesBloc.add(MovieSearchInitialFetchEvent(query));
-  }
-
-  @override
-  List<Widget>? buildActions(BuildContext context) {
-    return [
-      IconButton(
-        onPressed: () {
-          if (query.isEmpty) {
-            close(context, null);
-          } else {
-            query = '';
-          }
-        },
-        icon: const Icon(Icons.clear_rounded),
-      )
-    ];
-  }
-
-  @override
-  Widget? buildLeading(BuildContext context) {
-    return IconButton(
-      onPressed: () {
-        close(context, null);
-      },
-      icon: const Icon(Icons.arrow_back_rounded),
-    );
-  }
-
-  @override
-  Widget buildResults(BuildContext context) {
-    moviesBloc.add(MovieSearchInitialFetchEvent(query.trim()));
-
-    // add to recent searches
-    RecentSearchesBox.addSearch(query.trim());
-
-    return BlocConsumer<MoviesBloc, MoviesState>(
-      bloc: moviesBloc,
-      listenWhen: (previous, current) => current is MoviesActionState,
-      buildWhen: (previous, current) => current is! MoviesActionState,
-      listener: (context, state) {},
-      builder: (context, state) {
-        switch (state.runtimeType) {
-          case const (MovieSearchFetchingLoadingState):
-            return const Center(child: CircularProgressIndicator());
-
-          case const (MovieSearchFetchingSuccessfulState):
-            final successState = state as MovieSearchFetchingSuccessfulState;
-            return ListView.builder(
-              itemCount: successState.movieDataUiModel.results!.length,
-              itemBuilder: (context, index) {
-                return MovieSearchList(
-                  title: successState.movieDataUiModel.results![index].title!,
-                  id: successState.movieDataUiModel.results![index].id!,
-                  posterPath:
-                      successState.movieDataUiModel.results![index].posterPath,
-                  voteAverage: successState
-                      .movieDataUiModel.results![index].voteAverage!,
-                  releaseDate: successState
-                      .movieDataUiModel.results![index].releaseDate!,
-                );
-              },
-            );
-
-          default:
-            return const SizedBox();
-        }
-      },
-    );
-  }
-
-  @override
-  Widget buildSuggestions(BuildContext context) {
-    final searches = RecentSearchesBox.getSearches();
-    return StatefulBuilder(
-      builder: (context, setState) => ListView.builder(
-        itemCount: searches.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(searches[index]),
-            onTap: () {
-              query = searches[index];
-            },
-            leading: const Icon(Icons.history_rounded),
-            trailing: IconButton(
-              onPressed: () {
-                RecentSearchesBox.removeSearch(searches[index]);
-                setState(() => searches.removeAt(index));
-              },
-              icon: const Icon(Icons.delete_rounded),
             ),
           );
         },
