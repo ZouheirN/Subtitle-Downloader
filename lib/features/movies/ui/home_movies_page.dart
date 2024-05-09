@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:subtitle_downloader/components/movie_search_list.dart';
+import 'package:subtitle_downloader/components/search_list.dart';
 import 'package:subtitle_downloader/features/movies/models/trending_movies_data_ui_model.dart';
 import 'package:subtitle_downloader/hive/recent_searches_box.dart';
 
@@ -26,7 +26,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
         actions: [
           IconButton(
               onPressed: () {
-                showSearch(context: context, delegate: MySearchDelegate());
+                showSearch(context: context, delegate: MovieSearchDelegate());
               },
               icon: const Icon(Icons.search_rounded))
         ],
@@ -216,10 +216,10 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
   }
 }
 
-class MySearchDelegate extends SearchDelegate {
+class MovieSearchDelegate extends SearchDelegate {
   final MoviesBloc moviesBloc = MoviesBloc();
 
-  MySearchDelegate() {
+  MovieSearchDelegate() {
     // todo: add discover
     // moviesBloc.add(MovieSearchInitialFetchEvent(query));
   }
@@ -257,11 +257,9 @@ class MySearchDelegate extends SearchDelegate {
     // add to recent searches
     RecentSearchesBox.addSearch(query.trim());
 
-    return BlocConsumer<MoviesBloc, MoviesState>(
+    return BlocBuilder<MoviesBloc, MoviesState>(
       bloc: moviesBloc,
-      listenWhen: (previous, current) => current is MoviesActionState,
       buildWhen: (previous, current) => current is! MoviesActionState,
-      listener: (context, state) {},
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (MovieSearchFetchingLoadingState):
@@ -272,7 +270,7 @@ class MySearchDelegate extends SearchDelegate {
             return ListView.builder(
               itemCount: successState.movieDataUiModel.results!.length,
               itemBuilder: (context, index) {
-                return MovieSearchList(
+                return SearchList(
                   title: successState.movieDataUiModel.results![index].title!,
                   id: successState.movieDataUiModel.results![index].id!,
                   posterPath:
@@ -281,6 +279,7 @@ class MySearchDelegate extends SearchDelegate {
                       .movieDataUiModel.results![index].voteAverage!,
                   releaseDate: successState
                       .movieDataUiModel.results![index].releaseDate!,
+                  isMovie: true,
                 );
               },
             );

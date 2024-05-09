@@ -5,7 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:subtitle_downloader/features/tv/bloc/tv_bloc.dart';
 
-import '../../movies/ui/home_movies_page.dart';
+import '../../../components/search_list.dart';
+import '../../../hive/recent_searches_box.dart';
 import '../models/trending_tv_data_ui_model.dart';
 
 class HomeTvPage extends StatefulWidget {
@@ -24,7 +25,7 @@ class _HomeTvPageState extends State<HomeTvPage> {
         actions: [
           IconButton(
             onPressed: () {
-              showSearch(context: context, delegate: MySearchDelegate());
+              showSearch(context: context, delegate: TvSearchDelegate());
             },
             icon: const Icon(Icons.search_rounded),
           )
@@ -193,6 +194,104 @@ class _HomeTvPageState extends State<HomeTvPage> {
                   ),
                 );
               },
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+class TvSearchDelegate extends SearchDelegate {
+  final TvBloc tvBloc = TvBloc();
+
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(
+        onPressed: () {
+          if (query.isEmpty) {
+            close(context, null);
+          } else {
+            query = '';
+          }
+        },
+        icon: const Icon(Icons.clear_rounded),
+      )
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        close(context, null);
+      },
+      icon: const Icon(Icons.arrow_back_rounded),
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    tvBloc.add(TvSearchInitialFetchEvent(query.trim()));
+
+    // add to recent searches
+    RecentSearchesBox.addSearch(query.trim());
+
+    return BlocBuilder<TvBloc, TvState>(
+      bloc: tvBloc,
+      buildWhen: (previous, current) => current is! TvActionState,
+      builder: (context, state) {
+        switch (state.runtimeType) {
+          case const (TvSearchFetchingLoadingState):
+            return const Center(child: CircularProgressIndicator());
+
+          case const (TvSearchFetchingSuccessfulState):
+            final successState = state as TvSearchFetchingSuccessfulState;
+            return ListView.builder(
+              itemCount: successState.tvSearchDataUiModel.results!.length,
+              itemBuilder: (context, index) {
+                return SearchList(
+                  title: successState.tvSearchDataUiModel.results![index].name!,
+                  id: successState.tvSearchDataUiModel.results![index].id!,
+                  posterPath: successState
+                      .tvSearchDataUiModel.results![index].posterPath,
+                  voteAverage: successState
+                      .tvSearchDataUiModel.results![index].voteAverage!,
+                  releaseDate: successState
+                      .tvSearchDataUiModel.results![index].firstAirDate
+                      .toString(),
+                  isMovie: false,
+                );
+              },
+            );
+
+          default:
+            return const SizedBox();
+        }
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    final searches = RecentSearchesBox.getSearches();
+    return StatefulBuilder(
+      builder: (context, setState) => ListView.builder(
+        itemCount: searches.length,
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Text(searches[index]),
+            onTap: () {
+              query = searches[index];
+            },
+            leading: const Icon(Icons.history_rounded),
+            trailing: IconButton(
+              onPressed: () {
+                RecentSearchesBox.removeSearch(searches[index]);
+                setState(() => searches.removeAt(index));
+              },
+              icon: const Icon(Icons.delete_rounded),
             ),
           );
         },

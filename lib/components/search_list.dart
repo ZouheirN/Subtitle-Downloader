@@ -2,20 +2,22 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-class MovieSearchList extends StatelessWidget {
+class SearchList extends StatelessWidget {
   final String? posterPath;
   final int id;
   final String title;
   final String releaseDate;
   final double voteAverage;
+  final bool isMovie;
 
-  const MovieSearchList({
+  const SearchList({
     super.key,
     required this.posterPath,
     required this.id,
     required this.title,
-    required this.releaseDate,
+    required this.releaseDate ,
     required this.voteAverage,
+    required this.isMovie,
   });
 
   @override
@@ -34,10 +36,12 @@ class MovieSearchList extends StatelessWidget {
       title: Text(title),
       subtitle: Text("$year • ${voteAverage.toStringAsFixed(1)}"),
       onTap: () {
-        context.pushNamed('View Movie', pathParameters: {
-          'movieId': id.toString(),
-          'movieName': title,
-        });
+        if (isMovie) {
+          context.pushNamed('View Movie', pathParameters: {
+            'movieId': id.toString(),
+            'movieName': title,
+          });
+        }
       },
     );
   }

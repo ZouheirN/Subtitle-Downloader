@@ -18,7 +18,7 @@ class TrendingTvFetchingSuccessfulState extends TvState {
   TrendingTvFetchingSuccessfulState(this.trendingTvDataUiModel);
 }
 
-// OnTheAir TV
+// On The Air TV
 class OnTheAirTvFetchingLoadingState extends TvState {}
 
 class OnTheAirTvFetchingErrorState extends TvState {}
@@ -28,3 +28,14 @@ class OnTheAirTvFetchingSuccessfulState extends TvState {
 
   OnTheAirTvFetchingSuccessfulState(this.onTheAirTvDataUiModel);
 }
+
+// Search TV
+class TvSearchFetchingLoadingState extends TvState {}
+
+class TvSearchFetchingSuccessfulState extends TvState {
+  final TvSearchDataUiModel tvSearchDataUiModel;
+
+  TvSearchFetchingSuccessfulState(this.tvSearchDataUiModel);
+}
+
+class TvSearchFetchingErrorState extends TvState {}

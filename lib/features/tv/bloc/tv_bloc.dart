@@ -6,15 +6,16 @@ import 'package:subtitle_downloader/features/tv/models/trending_tv_data_ui_model
 import 'package:subtitle_downloader/features/tv/repos/tv_repo.dart';
 
 import '../models/on_the_air_tv_data_ui_model.dart';
+import '../models/tv_search_data_ui_model.dart';
 
 part 'tv_event.dart';
-
 part 'tv_state.dart';
 
 class TvBloc extends Bloc<TvEvent, TvState> {
   TvBloc() : super(TvInitial()) {
     on<TrendingTvInitialFetchEvent>(trendingTVInitialFetchEvent);
     on<OnTheAirTvInitialFetchEvent>(onTheAirTvInitialFetchEvent);
+    on<TvSearchInitialFetchEvent>(tvSearchInitialFetchEvent);
   }
 
   Future<FutureOr<void>> trendingTVInitialFetchEvent(
@@ -42,6 +43,21 @@ class TvBloc extends Bloc<TvEvent, TvState> {
       emit(OnTheAirTvFetchingErrorState());
     } else {
       emit(OnTheAirTvFetchingSuccessfulState(onTheAirTvDataUiModel));
+    }
+  }
+
+  Future<FutureOr<void>> tvSearchInitialFetchEvent(
+      event, Emitter<TvState> emit) async {
+    emit(TvSearchFetchingLoadingState());
+
+    TvSearchDataUiModel? tvSearchDataUiModel = await TvRepo.searchTv(
+      query: event.query,
+    );
+
+    if (tvSearchDataUiModel == null) {
+      emit(TvSearchFetchingErrorState());
+    } else {
+      emit(TvSearchFetchingSuccessfulState(tvSearchDataUiModel));
     }
   }
 }

@@ -8,3 +8,10 @@ class TrendingTvInitialFetchEvent extends TvEvent {}
 
 // On The Air TV
 class OnTheAirTvInitialFetchEvent extends TvEvent {}
+
+// TV Search
+class TvSearchInitialFetchEvent extends TvEvent {
+  final String query;
+
+  TvSearchInitialFetchEvent(this.query);
+}
