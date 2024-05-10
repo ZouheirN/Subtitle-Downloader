@@ -5,19 +5,28 @@ sealed class SubtitleState {}
 
 abstract class SubtitleActionState extends SubtitleState {}
 
-abstract class SubtitleFetchingState extends SubtitleState {}
-
 final class SubtitleInitial extends SubtitleState {}
 
-// Subtitle Fetching
-class SubtitleFetchingLoadingState extends SubtitleFetchingState {}
+// Movie Subtitle Fetching
+class SubtitleMovieFetchingLoadingState extends SubtitleState {}
 
-class SubtitleFetchingErrorState extends SubtitleFetchingState {}
+class SubtitleMovieFetchingErrorState extends SubtitleState {}
 
-class SubtitleFetchingSuccessfulState extends SubtitleFetchingState {
+class SubtitleMovieFetchingSuccessfulState extends SubtitleState {
   final SubtitlesDataUiModel subtitlesDataUiModel;
 
-  SubtitleFetchingSuccessfulState(this.subtitlesDataUiModel);
+  SubtitleMovieFetchingSuccessfulState(this.subtitlesDataUiModel);
+}
+
+// TV Subtitle Fetching
+class SubtitleTvFetchingLoadingState extends SubtitleState {}
+
+class SubtitleTvFetchingErrorState extends SubtitleState {}
+
+class SubtitleTvFetchingSuccessfulState extends SubtitleState {
+  final SubtitlesDataUiModel subtitlesDataUiModel;
+
+  SubtitleTvFetchingSuccessfulState(this.subtitlesDataUiModel);
 }
 
 // Subtitle Download

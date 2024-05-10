@@ -3,6 +3,7 @@ import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/tv/bloc/tv_bloc.dart';
 
 import '../../../components/search_list.dart';
@@ -47,8 +48,8 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc: context.read<TvBloc>()..add(TrendingTvInitialFetchEvent()),
-              buildWhen: (previous, current) => current is TrendingTvState,
+              bloc: TvBloc()..add(TrendingTvInitialFetchEvent()),
+              buildWhen: (previous, current) => current is !TvActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (TrendingTvFetchingLoadingState):
@@ -78,8 +79,8 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc: context.read<TvBloc>()..add(OnTheAirTvInitialFetchEvent()),
-              buildWhen: (previous, current) => current is OnTheAirTvState,
+              bloc:TvBloc()..add(OnTheAirTvInitialFetchEvent()),
+              buildWhen: (previous, current) => current is !TvActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (OnTheAirTvFetchingLoadingState):
@@ -94,7 +95,12 @@ class _HomeTvPageState extends State<HomeTvPage> {
                         children: successState.onTheAirTvDataUiModel.results!
                             .map(
                               (e) => GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  context.pushNamed('View TV', pathParameters: {
+                                    'tvId': e.id.toString(),
+                                    'tvName': e.name!,
+                                  });
+                                },
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 16, right: 16, bottom: 16),
@@ -162,7 +168,12 @@ class _HomeTvPageState extends State<HomeTvPage> {
         itemCount: trendingTvDataUiModel.results!.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: () {},
+            onTap: () {
+              context.pushNamed('View TV', pathParameters: {
+                'tvId': trendingTvDataUiModel.results![index].id.toString(),
+                'tvName': trendingTvDataUiModel.results![index].name!,
+              });
+            },
             child: CachedNetworkImage(
               imageUrl:
                   "https://image.tmdb.org/t/p/w500${trendingTvDataUiModel.results![index].posterPath!}",
@@ -203,6 +214,8 @@ class _HomeTvPageState extends State<HomeTvPage> {
 }
 
 class TvSearchDelegate extends SearchDelegate {
+  final TvBloc tvBloc = TvBloc();
+
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -231,14 +244,14 @@ class TvSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    context.read<TvBloc>().add(TvSearchInitialFetchEvent(query.trim()));
+    tvBloc.add(TvSearchInitialFetchEvent(query.trim()));
 
     // add to recent searches
     RecentSearchesBox.addSearch(query.trim());
 
     return BlocBuilder<TvBloc, TvState>(
-      bloc: context.read<TvBloc>(),
-      buildWhen: (previous, current) => current is TvSearchState,
+      bloc: tvBloc,
+      buildWhen: (previous, current) => current is !TvActionState,
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (TvSearchFetchingLoadingState):

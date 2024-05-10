@@ -25,12 +25,17 @@ class DownloadedSubtitlesBox {
 
     for (var url in downloadedSubtitlesBox.keys) {
       final subtitle = downloadedSubtitlesBox.get(url);
+      // add url
+      subtitle['url'] = url;
       final movieName = subtitle['movieName'];
 
-      final movieIndex = downloadedSubtitles.indexWhere((element) => element.keys.first == movieName);
+      final movieIndex = downloadedSubtitles
+          .indexWhere((element) => element.keys.first == movieName);
 
       if (movieIndex == -1) {
-        downloadedSubtitles.add({movieName: [subtitle]});
+        downloadedSubtitles.add({
+          movieName: [subtitle]
+        });
       } else {
         downloadedSubtitles[movieIndex][movieName]?.add(subtitle);
       }

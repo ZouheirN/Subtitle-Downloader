@@ -15,7 +15,7 @@ class SearchList extends StatelessWidget {
     required this.posterPath,
     required this.id,
     required this.title,
-    required this.releaseDate ,
+    required this.releaseDate,
     required this.voteAverage,
     required this.isMovie,
   });
@@ -40,6 +40,11 @@ class SearchList extends StatelessWidget {
           context.pushNamed('View Movie', pathParameters: {
             'movieId': id.toString(),
             'movieName': title,
+          });
+        } else {
+          context.pushNamed('View TV', pathParameters: {
+            'tvId': id.toString(),
+            'tvName': title,
           });
         }
       },

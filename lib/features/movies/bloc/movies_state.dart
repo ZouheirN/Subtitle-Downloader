@@ -5,56 +5,48 @@ sealed class MoviesState {}
 
 abstract class MoviesActionState extends MoviesState {}
 
-abstract class TrendingMoviesState extends MoviesState {}
-
-abstract class NowPlayingMoviesState extends MoviesState {}
-
-abstract class MovieViewState extends MoviesState {}
-
-abstract class MovieSearchState extends MoviesState {}
-
 final class MoviesInitial extends MoviesState {}
 
 // Trending Movies
-class TrendingMoviesFetchingLoadingState extends TrendingMoviesState {}
+class TrendingMoviesFetchingLoadingState extends MoviesState {}
 
-class TrendingMoviesFetchingErrorState extends TrendingMoviesState {}
+class TrendingMoviesFetchingErrorState extends MoviesState {}
 
-class TrendingMoviesFetchingSuccessfulState extends TrendingMoviesState {
+class TrendingMoviesFetchingSuccessfulState extends MoviesState {
   final TrendingMoviesDataUiModel trendingMoviesDataUiModel;
 
   TrendingMoviesFetchingSuccessfulState(this.trendingMoviesDataUiModel);
 }
 
 // Now Playing Movies
-class NowPlayingMoviesFetchingLoadingState extends NowPlayingMoviesState {}
+class NowPlayingMoviesFetchingLoadingState extends MoviesState {}
 
-class NowPlayingMoviesFetchingErrorState extends NowPlayingMoviesState {}
+class NowPlayingMoviesFetchingErrorState extends MoviesState {}
 
-class NowPlayingMoviesFetchingSuccessfulState extends NowPlayingMoviesState {
+class NowPlayingMoviesFetchingSuccessfulState extends MoviesState {
   final NowPlayingMoviesDataUiModel nowPlayingMoviesDataUiModel;
 
   NowPlayingMoviesFetchingSuccessfulState(this.nowPlayingMoviesDataUiModel);
 }
 
 // Movie View
-class MovieViewFetchingLoadingState extends MovieViewState {}
+class MovieViewFetchingLoadingState extends MoviesState {}
 
-class MovieViewFetchingSuccessfulState extends MovieViewState {
+class MovieViewFetchingSuccessfulState extends MoviesState {
   final MovieDataUiModel movieDataUiModel;
 
   MovieViewFetchingSuccessfulState(this.movieDataUiModel);
 }
 
-class MovieViewFetchingErrorState extends MovieViewState {}
+class MovieViewFetchingErrorState extends MoviesState {}
 
 // Movie Search
-class MovieSearchFetchingLoadingState extends MovieSearchState {}
+class MovieSearchFetchingLoadingState extends MoviesState {}
 
-class MovieSearchFetchingSuccessfulState extends MovieSearchState {
+class MovieSearchFetchingSuccessfulState extends MoviesState {
   final MovieSearchDataUiModel movieDataUiModel;
 
   MovieSearchFetchingSuccessfulState(this.movieDataUiModel);
 }
 
-class MovieSearchFetchingErrorState extends MovieSearchState {}
+class MovieSearchFetchingErrorState extends MoviesState {}

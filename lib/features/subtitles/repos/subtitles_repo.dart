@@ -10,10 +10,9 @@ class SubtitlesRepo {
   static Dio dio = Dio();
   static String? subdlApiKey = dotenv.env['SUBDL_API_KEY'];
 
-  static Future<SubtitlesDataUiModel?> fetchSubtitles({
+  static Future<SubtitlesDataUiModel?> fetchMovieSubtitles({
     required String tmdbId,
     required String language,
-    required String type,
   }) async {
     try {
       Response response = await dio.get(
@@ -22,7 +21,34 @@ class SubtitlesRepo {
           'api_key': subdlApiKey,
           'tmdb_id': tmdbId,
           'languages': language,
-          'type': type,
+          'type': 'movie',
+          'subs_per_page': 30,
+        },
+      );
+
+      return SubtitlesDataUiModel.fromJson(response.data);
+    } on DioException catch (e) {
+      logger.e(e.toString());
+      return null;
+    }
+  }
+
+  static Future<SubtitlesDataUiModel?> fetchTvSubtitles({
+    required String tmdbId,
+    required int season,
+    required int episode,
+    required String language,
+  }) async {
+    try {
+      Response response = await dio.get(
+        'https://api.subdl.com/api/v1/subtitles',
+        queryParameters: {
+          'api_key': subdlApiKey,
+          'tmdb_id': tmdbId,
+          'languages': language,
+          'season_number': season,
+          'episode_number': episode,
+          'type': 'tv',
           'subs_per_page': 30,
         },
       );
@@ -39,7 +65,8 @@ class SubtitlesRepo {
     required String name,
   }) async {
     try {
-      String zipName = name.replaceFirst("SUBDL::", "");
+      String zipName = name.replaceFirst("SUBDL::", "").replaceFirst("SUBDL.com::", "");
+
       final tempDirectory = await getTemporaryDirectory();
 
       final tempZipFilePath = '${tempDirectory.path}/$zipName';

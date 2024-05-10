@@ -14,25 +14,25 @@ part 'subtitle_state.dart';
 
 class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
   SubtitleBloc() : super(SubtitleInitial()) {
-    on<SubtitleInitialFetchEvent>(subtitleInitialFetchEvent);
+    on<SubtitleMovieInitialFetchEvent>(subtitleMovieInitialFetchEvent);
     on<SubtitleDownloadEvent>(subtitleDownloadEvent);
+    on<SubtitleTvInitialFetchEvent>(subtitleTvInitialFetchEvent);
   }
 
-  Future<FutureOr<void>> subtitleInitialFetchEvent(
-      SubtitleInitialFetchEvent event, Emitter<SubtitleState> emit) async {
-    emit(SubtitleFetchingLoadingState());
+  Future<FutureOr<void>> subtitleMovieInitialFetchEvent(
+      SubtitleMovieInitialFetchEvent event, Emitter<SubtitleState> emit) async {
+    emit(SubtitleMovieFetchingLoadingState());
 
     SubtitlesDataUiModel? subtitlesDataUiModel =
-        await SubtitlesRepo.fetchSubtitles(
+        await SubtitlesRepo.fetchMovieSubtitles(
       tmdbId: event.movieId,
       language: event.language,
-      type: event.type,
     );
 
     if (subtitlesDataUiModel == null) {
-      emit(SubtitleFetchingErrorState());
+      emit(SubtitleMovieFetchingErrorState());
     } else {
-      emit(SubtitleFetchingSuccessfulState(subtitlesDataUiModel));
+      emit(SubtitleMovieFetchingSuccessfulState(subtitlesDataUiModel));
     }
   }
 
@@ -49,13 +49,33 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
       );
 
       if (response == 1) {
-        DownloadedSubtitlesBox.addDownloadedSubtitle(event.url, event.releaseName, event.author, event.movieName);
+        DownloadedSubtitlesBox.addDownloadedSubtitle(
+            event.url, event.releaseName, event.author, event.mediaName);
         emit(SubtitleDownloadSuccessState());
       } else if (response == -1) {
         emit(SubtitleDownloadErrorState());
       }
     } else {
       emit(SubtitleDownloadPermissionNotGrantedState());
+    }
+  }
+
+  Future<FutureOr<void>> subtitleTvInitialFetchEvent(
+      SubtitleTvInitialFetchEvent event, Emitter<SubtitleState> emit) async {
+    emit(SubtitleTvFetchingLoadingState());
+
+    SubtitlesDataUiModel? subtitlesDataUiModel =
+        await SubtitlesRepo.fetchTvSubtitles(
+      tmdbId: event.tvId,
+      season: event.season,
+      episode: event.episode,
+      language: event.language,
+    );
+
+    if (subtitlesDataUiModel == null) {
+      emit(SubtitleTvFetchingErrorState());
+    } else {
+      emit(SubtitleTvFetchingSuccessfulState(subtitlesDataUiModel));
     }
   }
 }

@@ -1,32 +1,34 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:subtitle_downloader/components/language_dropdown.dart';
-import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
-import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
-import 'package:subtitle_downloader/hive/settings_box.dart';
+import 'package:subtitle_downloader/components/season_dropdown.dart';
+import 'package:subtitle_downloader/features/tv/bloc/tv_bloc.dart';
+import 'package:subtitle_downloader/features/tv/models/tv_data_ui_model.dart';
 
+import '../../../components/language_dropdown.dart';
+import '../../../hive/downloaded_subtitles_box.dart';
+import '../../../hive/settings_box.dart';
+import '../../subtitles/bloc/subtitle_bloc.dart';
 import '../../subtitles/models/subtitles_data_ui_model.dart';
-import '../bloc/movies_bloc.dart';
-import '../models/movie_data_ui_model.dart';
 
-class MoviePage extends StatefulWidget {
-  final int movieId;
-  final String movieName;
+class TvPage extends StatefulWidget {
+  final int tvId;
+  final String tvName;
 
-  const MoviePage({super.key, required this.movieId, required this.movieName});
+  const TvPage({super.key, required this.tvId, required this.tvName});
 
   @override
-  State<MoviePage> createState() => _MoviePageState();
+  State<TvPage> createState() => _TvPageState();
 }
 
-class _MoviePageState extends State<MoviePage> {
-  final MoviesBloc movieBloc = MoviesBloc();
+class _TvPageState extends State<TvPage> {
+  final TvBloc tvBloc = TvBloc();
   final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
   String oldLanguage = SettingsBox.getDefaultLanguage();
+  int oldSeason = 1;
+  int oldEpisode = 1;
 
   ValueNotifier query = ValueNotifier('');
 
@@ -35,19 +37,39 @@ class _MoviePageState extends State<MoviePage> {
     oldLanguage = language;
 
     subtitleBloc.add(
-      SubtitleMovieInitialFetchEvent(
-        widget.movieId.toString(),
+      SubtitleTvInitialFetchEvent(
+        widget.tvId.toString(),
+        oldSeason,
+        oldEpisode,
         language,
+      ),
+    );
+  }
+
+  void onSeasonChanged(int season, int episode) {
+    if (oldSeason == season && oldEpisode == episode) return;
+
+    oldSeason = season;
+    oldEpisode = episode;
+
+    subtitleBloc.add(
+      SubtitleTvInitialFetchEvent(
+        widget.tvId.toString(),
+        oldSeason,
+        oldEpisode,
+        oldLanguage,
       ),
     );
   }
 
   @override
   void initState() {
-    movieBloc.add(MovieViewInitialFetchEvent(widget.movieId));
+    tvBloc.add(TvViewInitialFetchEvent(widget.tvId.toString()));
     subtitleBloc.add(
-      SubtitleMovieInitialFetchEvent(
-        widget.movieId.toString(),
+      SubtitleTvInitialFetchEvent(
+        widget.tvId.toString(),
+        oldSeason,
+        oldEpisode,
         oldLanguage,
       ),
     );
@@ -57,19 +79,17 @@ class _MoviePageState extends State<MoviePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<MoviesBloc, MoviesState>(
-        bloc: movieBloc,
-        listenWhen: (previous, current) => current is MoviesActionState,
-        buildWhen: (previous, current) => current is! MoviesActionState,
-        listener: (context, state) {},
+      body: BlocBuilder<TvBloc, TvState>(
+        bloc: tvBloc,
+        buildWhen: (previous, current) => current is! TvActionState,
         builder: (context, state) {
           switch (state.runtimeType) {
-            case const (MovieViewFetchingLoadingState):
+            case const (TvViewFetchingLoadingState):
               return const Center(child: CircularProgressIndicator());
 
-            case const (MovieViewFetchingSuccessfulState):
-              final successState = state as MovieViewFetchingSuccessfulState;
-              return _buildMovieView(successState.movieDataUiModel);
+            case const (TvViewFetchingSuccessfulState):
+              final successState = state as TvViewFetchingSuccessfulState;
+              return _buildTvView(successState.tvDataUiModel);
 
             default:
               return const SizedBox();
@@ -79,21 +99,15 @@ class _MoviePageState extends State<MoviePage> {
     );
   }
 
-  Widget _buildMovieView(MovieDataUiModel movieDataUiModel) {
-    final datePared = DateTime.tryParse(
-        movieDataUiModel.releaseDate?.toIso8601String() ?? '');
+  Widget _buildTvView(TvDataUiModel tvDataUiModel) {
+    final datePared =
+        DateTime.tryParse(tvDataUiModel.firstAirDate?.toIso8601String() ?? '');
 
-    final genres = movieDataUiModel.genres?.map(
+    final genres = tvDataUiModel.genres?.map(
       (e) {
         return e.name;
       },
     ).join(', ');
-
-    int hours = movieDataUiModel.runtime! ~/ 60;
-    int remainingMinutes = movieDataUiModel.runtime! % 60;
-    String hoursString = hours > 0 ? '${hours}h' : '';
-    String minutesString = remainingMinutes > 0 ? '${remainingMinutes}m' : '';
-    final runtime = '$hoursString $minutesString';
 
     return CustomScrollView(
       slivers: [
@@ -102,36 +116,16 @@ class _MoviePageState extends State<MoviePage> {
           flexibleSpace: FlexibleSpaceBar(
             // centerTitle: true,
             title: Text(
-              movieDataUiModel.title ?? 'No Title',
+              tvDataUiModel.name ?? 'No Title',
               style: const TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
             ),
-            background: CachedNetworkImage(
-              imageUrl:
-                  'https://image.tmdb.org/t/p/w500${movieDataUiModel.backdropPath}',
-              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                  const SizedBox(),
-              alignment: Alignment.topCenter,
-              imageBuilder: (context, imageProvider) {
-                return ShaderMask(
-                  shaderCallback: (rect) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black, Colors.transparent],
-                    ).createShader(
-                        Rect.fromLTRB(0, 0, rect.width, rect.height));
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: Image(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
-                  ),
-                );
-              },
+            background: Image.network(
+              'https://image.tmdb.org/t/p/w500${tvDataUiModel.backdropPath}',
+              fit: BoxFit.cover,
             ),
           ),
           pinned: true,
@@ -148,13 +142,13 @@ class _MoviePageState extends State<MoviePage> {
                     children: [
                       Text(
                         datePared != null
-                            ? '${datePared.year} • $genres • $runtime'
+                            ? '${datePared.year} • $genres'
                             : 'No Release Date',
                         style: const TextStyle(
                           fontSize: 16,
                         ),
                       ),
-                      _buildRatingView(movieDataUiModel),
+                      _buildRatingView(tvDataUiModel),
                       const Gap(8),
                       if (!showMorePressed)
                         GestureDetector(
@@ -164,7 +158,7 @@ class _MoviePageState extends State<MoviePage> {
                             });
                           },
                           child: Text(
-                            movieDataUiModel.overview ?? 'No Overview',
+                            tvDataUiModel.overview ?? 'No Overview',
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -176,8 +170,7 @@ class _MoviePageState extends State<MoviePage> {
                               showMorePressed = false;
                             });
                           },
-                          child:
-                              Text(movieDataUiModel.overview ?? 'No Overview'),
+                          child: Text(tvDataUiModel.overview ?? 'No Overview'),
                         ),
                       const Gap(16),
                       const Divider(),
@@ -227,15 +220,16 @@ class _MoviePageState extends State<MoviePage> {
                         },
                         builder: (context, state) {
                           switch (state.runtimeType) {
-                            case const (SubtitleMovieFetchingLoadingState):
+                            case const (SubtitleTvFetchingLoadingState):
                               return const Center(
                                   child: CircularProgressIndicator());
 
-                            case const (SubtitleMovieFetchingSuccessfulState):
+                            case const (SubtitleTvFetchingSuccessfulState):
                               final successState =
-                                  state as SubtitleMovieFetchingSuccessfulState;
+                                  state as SubtitleTvFetchingSuccessfulState;
                               return _buildSubtitleView(
-                                  successState.subtitlesDataUiModel);
+                                  successState.subtitlesDataUiModel,
+                                  tvDataUiModel);
 
                             default:
                               return const SizedBox();
@@ -254,8 +248,8 @@ class _MoviePageState extends State<MoviePage> {
     );
   }
 
-  Text _buildRatingView(MovieDataUiModel movieDataUiModel) {
-    final rating = movieDataUiModel.voteAverage;
+  Text _buildRatingView(TvDataUiModel tvDataUiModel) {
+    final rating = tvDataUiModel.voteAverage;
 
     return Text(
       rating?.toStringAsFixed(1) ?? 'No Rating',
@@ -270,7 +264,8 @@ class _MoviePageState extends State<MoviePage> {
     );
   }
 
-  Widget _buildSubtitleView(SubtitlesDataUiModel subtitlesDataUiModel) {
+  Widget _buildSubtitleView(
+      SubtitlesDataUiModel subtitlesDataUiModel, TvDataUiModel tvDataUiModel) {
     final subtitles = subtitlesDataUiModel.subtitles;
 
     return Align(
@@ -286,6 +281,12 @@ class _MoviePageState extends State<MoviePage> {
                 initialLanguage: oldLanguage,
               ),
             ],
+          ),
+          SeasonDropdown(
+            initialSeason: oldSeason,
+            initialEpisode: oldEpisode,
+            seasons: tvDataUiModel.seasons ?? [],
+            onSeasonChanged: onSeasonChanged,
           ),
           const Gap(8),
           TextField(
@@ -320,52 +321,53 @@ class _MoviePageState extends State<MoviePage> {
                   children: filteredSubtitles
                       .map(
                         (e) => ValueListenableBuilder(
-                            valueListenable: DownloadedSubtitlesBox
-                                .downloadedSubtitlesBox
-                                .listenable(),
-                            builder: (context, value, child) {
-                              return Container(
-                                margin: const EdgeInsets.symmetric(vertical: 2),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: DownloadedSubtitlesBox
-                                            .isSubtitleDownloaded(e.url!)
-                                        ? Colors.grey[100]!.withOpacity(0.1)
-                                        : Colors.transparent,
-                                  ),
+                          valueListenable: DownloadedSubtitlesBox
+                              .downloadedSubtitlesBox
+                              .listenable(),
+                          builder: (context, value, child) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
                                   color: DownloadedSubtitlesBox
                                           .isSubtitleDownloaded(e.url!)
-                                      ? Colors.grey[100]?.withOpacity(0.1)
-                                      : null,
+                                      ? Colors.grey[100]!.withOpacity(0.1)
+                                      : Colors.transparent,
                                 ),
-                                child: ListTile(
-                                  title: Text(
-                                    e.releaseName!,
-                                    style: TextStyle(
-                                      fontWeight: DownloadedSubtitlesBox
-                                              .isSubtitleDownloaded(e.url!)
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
+                                color:
+                                    DownloadedSubtitlesBox.isSubtitleDownloaded(
+                                            e.url!)
+                                        ? Colors.grey[100]?.withOpacity(0.1)
+                                        : null,
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  e.releaseName!,
+                                  style: TextStyle(
+                                    fontWeight: DownloadedSubtitlesBox
+                                            .isSubtitleDownloaded(e.url!)
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
-                                  subtitle: Text('Uploader: ${e.author!}'),
-                                  onTap: () {
-                                    subtitleBloc.add(
-                                      SubtitleDownloadEvent(
-                                        e.url!,
-                                        e.name!,
-                                        e.author!,
-                                        e.releaseName!,
-                                        subtitlesDataUiModel
-                                            .results!.first.name!,
-                                        'movie',
-                                      ),
-                                    );
-                                  },
                                 ),
-                              );
-                            }),
+                                subtitle: Text('Uploader: ${e.author!}'),
+                                onTap: () {
+                                  subtitleBloc.add(
+                                    SubtitleDownloadEvent(
+                                      e.url!,
+                                      e.name!,
+                                      e.author!,
+                                      e.releaseName!,
+                                      subtitlesDataUiModel.results!.first.name!,
+                                      'tv',
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
                       )
                       .toList(),
                 );

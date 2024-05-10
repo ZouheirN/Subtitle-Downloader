@@ -8,6 +8,7 @@ import 'package:subtitle_downloader/features/tv/ui/home_tv_page.dart';
 
 import '../movies/ui/movie_page.dart';
 import '../profile/ui/settings_page.dart';
+import '../tv/ui/tv_page.dart';
 
 class AppNavigation {
   static String initR = '/movies';
@@ -72,6 +73,19 @@ class AppNavigation {
                 builder: (context, state) {
                   return const HomeTvPage();
                 },
+                routes: [
+                  // View Tv Page
+                  GoRoute(
+                    path: 'view-tv/:tvId/:tvName',
+                    name: 'View TV',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) => TvPage(
+                      key: state.pageKey,
+                      tvId: int.parse(state.pathParameters['tvId']!),
+                      tvName: state.pathParameters['tvName']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

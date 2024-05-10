@@ -4,6 +4,7 @@ import 'package:subtitle_downloader/features/tv/models/on_the_air_tv_data_ui_mod
 
 import '../../../main.dart';
 import '../models/trending_tv_data_ui_model.dart';
+import '../models/tv_data_ui_model.dart';
 import '../models/tv_search_data_ui_model.dart';
 
 class TvRepo {
@@ -40,6 +41,26 @@ class TvRepo {
       );
 
       return OnTheAirTvDataUiModel.fromJson(response.data);
+    } on DioException catch (e) {
+      logger.e(e.toString());
+      return null;
+    }
+  }
+
+  static Future<TvDataUiModel?> viewTv({required String seriesId}) async {
+    try {
+      Response response = await dio.get(
+        'https://api.themoviedb.org/3/tv/$seriesId?language=en-US',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $tmdbApiKey',
+          },
+        ),
+      );
+
+      // logger.i(response.data);
+
+      return TvDataUiModel.fromJson(response.data);
     } on DioException catch (e) {
       logger.e(e.toString());
       return null;

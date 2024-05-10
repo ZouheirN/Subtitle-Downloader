@@ -47,8 +47,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             ),
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: context.read<MoviesBloc>()..add(TrendingMoviesInitialFetchEvent()),
-              buildWhen: (previous, current) => current is TrendingMoviesState,
+              bloc: MoviesBloc()..add(TrendingMoviesInitialFetchEvent()),
+              buildWhen: (previous, current) => current is !MoviesActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (TrendingMoviesFetchingLoadingState):
@@ -78,8 +78,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             ),
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: context.read<MoviesBloc>()..add(NowPlayingMoviesInitialFetchEvent()),
-              buildWhen: (previous, current) => current is NowPlayingMoviesState,
+              bloc: MoviesBloc()..add(NowPlayingMoviesInitialFetchEvent()),
+              buildWhen: (previous, current) => current is !MoviesActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (NowPlayingMoviesFetchingLoadingState):
@@ -217,6 +217,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
 }
 
 class MovieSearchDelegate extends SearchDelegate {
+  final MoviesBloc moviesBloc = MoviesBloc();
+
   MovieSearchDelegate() {
     // todo: add discover
     // moviesBloc.add(MovieSearchInitialFetchEvent(query));
@@ -250,14 +252,14 @@ class MovieSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    context.read<MoviesBloc>().add(MovieSearchInitialFetchEvent(query.trim()));
+    moviesBloc.add(MovieSearchInitialFetchEvent(query.trim()));
 
     // add to recent searches
     RecentSearchesBox.addSearch(query.trim());
 
     return BlocBuilder<MoviesBloc, MoviesState>(
-      bloc: context.read<MoviesBloc>(),
-      buildWhen: (previous, current) => current is MovieSearchState,
+      bloc: moviesBloc,
+      buildWhen: (previous, current) => current is !MoviesActionState,
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (MovieSearchFetchingLoadingState):
