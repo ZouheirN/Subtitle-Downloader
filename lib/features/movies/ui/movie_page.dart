@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:draggable_home/draggable_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
@@ -95,21 +96,25 @@ class _MoviePageState extends State<MoviePage> {
     String minutesString = remainingMinutes > 0 ? '${remainingMinutes}m' : '';
     final runtime = '$hoursString $minutesString';
 
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          elevation: 0,
-          flexibleSpace: FlexibleSpaceBar(
-            // centerTitle: true,
-            title: Text(
-              movieDataUiModel.title ?? 'No Title',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-            ),
-            background: CachedNetworkImage(
+    return DraggableHome(
+      title: Text(
+        movieDataUiModel.title ?? 'No Title',
+      ),
+      alwaysShowLeadingAndAction: true,
+      leading: IconButton(
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+        icon: const Icon(Icons.arrow_back_rounded),
+      ),
+      headerWidget: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: CachedNetworkImage(
               imageUrl:
                   'https://image.tmdb.org/t/p/w500${movieDataUiModel.backdropPath}',
               progressIndicatorBuilder: (context, url, downloadProgress) =>
@@ -134,120 +139,122 @@ class _MoviePageState extends State<MoviePage> {
               },
             ),
           ),
-          pinned: true,
-          expandedHeight: 200,
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        datePared != null
-                            ? '${datePared.year} • $genres • $runtime'
-                            : 'No Release Date',
-                        style: const TextStyle(
-                          fontSize: 16,
-                        ),
-                      ),
-                      _buildRatingView(movieDataUiModel),
-                      const Gap(8),
-                      if (!showMorePressed)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              showMorePressed = true;
-                            });
-                          },
-                          child: Text(
-                            movieDataUiModel.overview ?? 'No Overview',
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        )
-                      else
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              showMorePressed = false;
-                            });
-                          },
-                          child:
-                              Text(movieDataUiModel.overview ?? 'No Overview'),
-                        ),
-                      const Gap(16),
-                      const Divider(),
-                      const Gap(16),
-                      BlocConsumer<SubtitleBloc, SubtitleState>(
-                        bloc: subtitleBloc,
-                        listenWhen: (previous, current) =>
-                            current is SubtitleActionState,
-                        buildWhen: (previous, current) =>
-                            current is! SubtitleActionState,
-                        listener: (context, state) {
-                          switch (state.runtimeType) {
-                            case const (SubtitleDownloadPermissionNotGrantedState):
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'Write Permissions Were Not Granted'),
-                                ),
-                              );
-                              break;
-                            case const (SubtitleDownloadStartedState):
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Downloading Subtitle...'),
-                                ),
-                              );
-                              break;
-                            case const (SubtitleDownloadSuccessState):
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Subtitle Downloaded'),
-                                ),
-                              );
-                              break;
-                            case const (SubtitleDownloadErrorState):
-                              ScaffoldMessenger.of(context).clearSnackBars();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Subtitle Download Failed'),
-                                ),
-                              );
-                              break;
-                          }
-                        },
-                        builder: (context, state) {
-                          switch (state.runtimeType) {
-                            case const (SubtitleMovieFetchingLoadingState):
-                              return const Center(
-                                  child: CircularProgressIndicator());
-
-                            case const (SubtitleMovieFetchingSuccessfulState):
-                              final successState =
-                                  state as SubtitleMovieFetchingSuccessfulState;
-                              return _buildSubtitleView(
-                                  successState.subtitlesDataUiModel);
-
-                            default:
-                              return const SizedBox();
-                          }
-                        },
-                      ),
-                    ],
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: Text(
+              movieDataUiModel.title ?? 'No Title',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 1,
+              textAlign: TextAlign.center,
+            ),
+          )
+        ],
+      ),
+      body: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${datePared?.year} • $genres • $runtime',
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
                 ),
-              );
-            },
-            childCount: 1,
+                _buildRatingView(movieDataUiModel),
+                const Gap(8),
+                if (!showMorePressed)
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showMorePressed = true;
+                      });
+                    },
+                    child: Text(
+                      movieDataUiModel.overview ?? 'No Overview',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  )
+                else
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        showMorePressed = false;
+                      });
+                    },
+                    child: Text(movieDataUiModel.overview ?? 'No Overview'),
+                  ),
+                const Gap(16),
+                const Divider(),
+                const Gap(16),
+                BlocConsumer<SubtitleBloc, SubtitleState>(
+                  bloc: subtitleBloc,
+                  listenWhen: (previous, current) =>
+                      current is SubtitleActionState,
+                  buildWhen: (previous, current) =>
+                      current is! SubtitleActionState,
+                  listener: (context, state) {
+                    switch (state.runtimeType) {
+                      case const (SubtitleDownloadPermissionNotGrantedState):
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Write Permissions Were Not Granted'),
+                          ),
+                        );
+                        break;
+                      case const (SubtitleDownloadStartedState):
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Downloading Subtitle...'),
+                          ),
+                        );
+                        break;
+                      case const (SubtitleDownloadSuccessState):
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Subtitle Downloaded'),
+                          ),
+                        );
+                        break;
+                      case const (SubtitleDownloadErrorState):
+                        ScaffoldMessenger.of(context).clearSnackBars();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Subtitle Download Failed'),
+                          ),
+                        );
+                        break;
+                    }
+                  },
+                  builder: (context, state) {
+                    switch (state.runtimeType) {
+                      case const (SubtitleMovieFetchingLoadingState):
+                        return const Center(child: CircularProgressIndicator());
+
+                      case const (SubtitleMovieFetchingSuccessfulState):
+                        final successState =
+                            state as SubtitleMovieFetchingSuccessfulState;
+                        return _buildSubtitleView(
+                            successState.subtitlesDataUiModel);
+
+                      default:
+                        return const SizedBox();
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -320,52 +327,53 @@ class _MoviePageState extends State<MoviePage> {
                   children: filteredSubtitles
                       .map(
                         (e) => ValueListenableBuilder(
-                            valueListenable: DownloadedSubtitlesBox
-                                .downloadedSubtitlesBox
-                                .listenable(),
-                            builder: (context, value, child) {
-                              return Container(
-                                margin: const EdgeInsets.symmetric(vertical: 2),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: DownloadedSubtitlesBox
-                                            .isSubtitleDownloaded(e.url!)
-                                        ? Colors.grey[100]!.withOpacity(0.1)
-                                        : Colors.transparent,
-                                  ),
+                          valueListenable: DownloadedSubtitlesBox
+                              .downloadedSubtitlesBox
+                              .listenable(),
+                          builder: (context, value, child) {
+                            return Container(
+                              margin: const EdgeInsets.symmetric(vertical: 2),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
                                   color: DownloadedSubtitlesBox
                                           .isSubtitleDownloaded(e.url!)
-                                      ? Colors.grey[100]?.withOpacity(0.1)
-                                      : null,
+                                      ? Colors.grey[100]!.withOpacity(0.1)
+                                      : Colors.transparent,
                                 ),
-                                child: ListTile(
-                                  title: Text(
-                                    e.releaseName!,
-                                    style: TextStyle(
-                                      fontWeight: DownloadedSubtitlesBox
-                                              .isSubtitleDownloaded(e.url!)
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                    ),
+                                color:
+                                    DownloadedSubtitlesBox.isSubtitleDownloaded(
+                                            e.url!)
+                                        ? Colors.grey[100]?.withOpacity(0.1)
+                                        : null,
+                              ),
+                              child: ListTile(
+                                title: Text(
+                                  e.releaseName!,
+                                  style: TextStyle(
+                                    fontWeight: DownloadedSubtitlesBox
+                                            .isSubtitleDownloaded(e.url!)
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
-                                  subtitle: Text('Uploader: ${e.author!}'),
-                                  onTap: () {
-                                    subtitleBloc.add(
-                                      SubtitleDownloadEvent(
-                                        e.url!,
-                                        e.name!,
-                                        e.author!,
-                                        e.releaseName!,
-                                        subtitlesDataUiModel
-                                            .results!.first.name!,
-                                        'movie',
-                                      ),
-                                    );
-                                  },
                                 ),
-                              );
-                            }),
+                                subtitle: Text('Uploader: ${e.author!}'),
+                                onTap: () {
+                                  subtitleBloc.add(
+                                    SubtitleDownloadEvent(
+                                      e.url!,
+                                      e.name!,
+                                      e.author!,
+                                      e.releaseName!,
+                                      subtitlesDataUiModel.results!.first.name!,
+                                      'movie',
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          },
+                        ),
                       )
                       .toList(),
                 );
