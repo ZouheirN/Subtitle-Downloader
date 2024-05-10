@@ -122,53 +122,38 @@ class _TvPageState extends State<TvPage> {
         },
         icon: const Icon(Icons.arrow_back_rounded),
       ),
-      headerWidget: Stack(
-        children: [
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: CachedNetworkImage(
-              imageUrl:
-                  'https://image.tmdb.org/t/p/w500${tvDataUiModel.backdropPath}',
-              progressIndicatorBuilder: (context, url, downloadProgress) =>
-                  const SizedBox(),
-              alignment: Alignment.topCenter,
-              imageBuilder: (context, imageProvider) {
-                return ShaderMask(
-                  shaderCallback: (rect) {
-                    return const LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Colors.black, Colors.transparent],
-                    ).createShader(
-                        Rect.fromLTRB(0, 0, rect.width, rect.height));
-                  },
-                  blendMode: BlendMode.dstIn,
-                  child: Image(
-                    image: imageProvider,
-                    fit: BoxFit.cover,
-                  ),
-                );
-              },
+      headerBottomBar: Text(
+        tvDataUiModel.name ?? 'No Title',
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.bold,
+        ),
+        overflow: TextOverflow.ellipsis,
+        textAlign: TextAlign.center,
+      ),
+      headerWidget: CachedNetworkImage(
+        imageUrl:
+            'https://image.tmdb.org/t/p/w500${tvDataUiModel.backdropPath}',
+        progressIndicatorBuilder: (context, url, downloadProgress) =>
+            const SizedBox(),
+        alignment: Alignment.topCenter,
+        imageBuilder: (context, imageProvider) {
+          return ShaderMask(
+            shaderCallback: (rect) {
+              return const LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.black, Colors.transparent],
+              ).createShader(
+                  Rect.fromLTRB(0, 0, rect.width, rect.height));
+            },
+            blendMode: BlendMode.dstIn,
+            child: Image(
+              image: imageProvider,
+              fit: BoxFit.cover,
             ),
-          ),
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Text(
-              tvDataUiModel.name ?? 'No Title',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
-              maxLines: 1,
-              textAlign: TextAlign.center,
-            ),
-          )
-        ],
+          );
+        },
       ),
       body: [
         Padding(
@@ -178,7 +163,7 @@ class _TvPageState extends State<TvPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '${datePared?.year} • $genres • ${tvDataUiModel.numberOfSeasons} Seasons • ${tvDataUiModel.numberOfEpisodes} Episodes',
+                  '${datePared?.year} • $genres • ${tvDataUiModel.numberOfSeasons} ${tvDataUiModel.numberOfSeasons == 1 ? 'Season' : 'Seasons'} • ${tvDataUiModel.numberOfEpisodes} ${tvDataUiModel.numberOfEpisodes == 1 ? 'Episode' : 'Episodes'}',
                   style: const TextStyle(
                     fontSize: 16,
                   ),
