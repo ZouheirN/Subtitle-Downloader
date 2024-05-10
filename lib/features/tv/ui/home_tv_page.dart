@@ -47,9 +47,8 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc: TvBloc()..add(TrendingTvInitialFetchEvent()),
-              buildWhen: (previous, current) =>
-                  current is! TvActionState && previous != current,
+              bloc: context.read<TvBloc>()..add(TrendingTvInitialFetchEvent()),
+              buildWhen: (previous, current) => current is TrendingTvState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (TrendingTvFetchingLoadingState):
@@ -79,7 +78,8 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc: TvBloc()..add(OnTheAirTvInitialFetchEvent()),
+              bloc: context.read<TvBloc>()..add(OnTheAirTvInitialFetchEvent()),
+              buildWhen: (previous, current) => current is OnTheAirTvState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (OnTheAirTvFetchingLoadingState):
@@ -203,8 +203,6 @@ class _HomeTvPageState extends State<HomeTvPage> {
 }
 
 class TvSearchDelegate extends SearchDelegate {
-  final TvBloc tvBloc = TvBloc();
-
   @override
   List<Widget>? buildActions(BuildContext context) {
     return [
@@ -233,14 +231,14 @@ class TvSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    tvBloc.add(TvSearchInitialFetchEvent(query.trim()));
+    context.read<TvBloc>().add(TvSearchInitialFetchEvent(query.trim()));
 
     // add to recent searches
     RecentSearchesBox.addSearch(query.trim());
 
     return BlocBuilder<TvBloc, TvState>(
-      bloc: tvBloc,
-      buildWhen: (previous, current) => current is! TvActionState,
+      bloc: context.read<TvBloc>(),
+      buildWhen: (previous, current) => current is TvSearchState,
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (TvSearchFetchingLoadingState):

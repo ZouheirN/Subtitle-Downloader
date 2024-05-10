@@ -47,9 +47,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             ),
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: MoviesBloc()..add(TrendingMoviesInitialFetchEvent()),
-              buildWhen: (previous, current) =>
-                  current is! MoviesActionState && previous != current,
+              bloc: context.read<MoviesBloc>()..add(TrendingMoviesInitialFetchEvent()),
+              buildWhen: (previous, current) => current is TrendingMoviesState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (TrendingMoviesFetchingLoadingState):
@@ -79,7 +78,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             ),
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: MoviesBloc()..add(NowPlayingMoviesInitialFetchEvent()),
+              bloc: context.read<MoviesBloc>()..add(NowPlayingMoviesInitialFetchEvent()),
+              buildWhen: (previous, current) => current is NowPlayingMoviesState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (NowPlayingMoviesFetchingLoadingState):
@@ -217,8 +217,6 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
 }
 
 class MovieSearchDelegate extends SearchDelegate {
-  final MoviesBloc moviesBloc = MoviesBloc();
-
   MovieSearchDelegate() {
     // todo: add discover
     // moviesBloc.add(MovieSearchInitialFetchEvent(query));
@@ -252,14 +250,14 @@ class MovieSearchDelegate extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    moviesBloc.add(MovieSearchInitialFetchEvent(query.trim()));
+    context.read<MoviesBloc>().add(MovieSearchInitialFetchEvent(query.trim()));
 
     // add to recent searches
     RecentSearchesBox.addSearch(query.trim());
 
     return BlocBuilder<MoviesBloc, MoviesState>(
-      bloc: moviesBloc,
-      buildWhen: (previous, current) => current is! MoviesActionState,
+      bloc: context.read<MoviesBloc>(),
+      buildWhen: (previous, current) => current is MovieSearchState,
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (MovieSearchFetchingLoadingState):

@@ -23,8 +23,6 @@ class MoviePage extends StatefulWidget {
 }
 
 class _MoviePageState extends State<MoviePage> {
-  final MoviesBloc movieBloc = MoviesBloc();
-  final SubtitleBloc subtitleBloc = SubtitleBloc();
   bool showMorePressed = false;
   String oldLanguage = SettingsBox.getDefaultLanguage();
 
@@ -34,36 +32,34 @@ class _MoviePageState extends State<MoviePage> {
     if (oldLanguage == language) return;
     oldLanguage = language;
 
-    subtitleBloc.add(
-      SubtitleInitialFetchEvent(
-        widget.movieId.toString(),
-        language,
-        'movie',
-      ),
-    );
+    context.read<SubtitleBloc>().add(
+          SubtitleInitialFetchEvent(
+            widget.movieId.toString(),
+            language,
+            'movie',
+          ),
+        );
   }
 
   @override
   void initState() {
-    movieBloc.add(MovieViewInitialFetchEvent(widget.movieId));
-    subtitleBloc.add(
-      SubtitleInitialFetchEvent(
-        widget.movieId.toString(),
-        oldLanguage,
-        'movie',
-      ),
-    );
+    context.read<SubtitleBloc>().add(
+          SubtitleInitialFetchEvent(
+            widget.movieId.toString(),
+            oldLanguage,
+            'movie',
+          ),
+        );
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<MoviesBloc, MoviesState>(
-        bloc: movieBloc,
-        listenWhen: (previous, current) => current is MoviesActionState,
-        buildWhen: (previous, current) => current is! MoviesActionState,
-        listener: (context, state) {},
+      body: BlocBuilder<MoviesBloc, MoviesState>(
+        bloc: context.read<MoviesBloc>()
+          ..add(MovieViewInitialFetchEvent(widget.movieId)),
+        buildWhen: (previous, current) => current is MovieViewState,
         builder: (context, state) {
           switch (state.runtimeType) {
             case const (MovieViewFetchingLoadingState):
@@ -185,11 +181,11 @@ class _MoviePageState extends State<MoviePage> {
                       const Divider(),
                       const Gap(16),
                       BlocConsumer<SubtitleBloc, SubtitleState>(
-                        bloc: subtitleBloc,
+                        bloc: context.read<SubtitleBloc>(),
                         listenWhen: (previous, current) =>
                             current is SubtitleActionState,
                         buildWhen: (previous, current) =>
-                            current is! SubtitleActionState,
+                            current is SubtitleFetchingState,
                         listener: (context, state) {
                           switch (state.runtimeType) {
                             case const (SubtitleDownloadPermissionNotGrantedState):
@@ -336,11 +332,10 @@ class _MoviePageState extends State<MoviePage> {
                                         ? Colors.grey[100]!.withOpacity(0.1)
                                         : Colors.transparent,
                                   ),
-                                  color:
-                                  DownloadedSubtitlesBox.isSubtitleDownloaded(
-                                              e.url!)
-                                          ? Colors.grey[100]?.withOpacity(0.1)
-                                          : null,
+                                  color: DownloadedSubtitlesBox
+                                          .isSubtitleDownloaded(e.url!)
+                                      ? Colors.grey[100]?.withOpacity(0.1)
+                                      : null,
                                 ),
                                 child: ListTile(
                                   title: Text(
@@ -354,15 +349,16 @@ class _MoviePageState extends State<MoviePage> {
                                   ),
                                   subtitle: Text('Uploader: ${e.author!}'),
                                   onTap: () {
-                                    subtitleBloc.add(
-                                      SubtitleDownloadEvent(
-                                        e.url!,
-                                        e.name!,
-                                        e.author!,
-                                        e.releaseName!,
-                                        subtitlesDataUiModel.results!.first.name!,
-                                      ),
-                                    );
+                                    context.read<SubtitleBloc>().add(
+                                          SubtitleDownloadEvent(
+                                            e.url!,
+                                            e.name!,
+                                            e.author!,
+                                            e.releaseName!,
+                                            subtitlesDataUiModel
+                                                .results!.first.name!,
+                                          ),
+                                        );
                                   },
                                 ),
                               );

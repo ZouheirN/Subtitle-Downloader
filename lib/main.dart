@@ -1,11 +1,15 @@
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
+import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
+import 'package:subtitle_downloader/features/tv/bloc/tv_bloc.dart';
 import 'package:subtitle_downloader/hive/settings_box.dart';
 
 import 'features/main/app_navigation.dart';
+import 'features/movies/bloc/movies_bloc.dart';
 
 final logger = Logger();
 
@@ -17,7 +21,11 @@ Future<void> main() async {
   await Hive.openBox('recentSearchesBox');
   await Hive.openBox('downloadedSubtitlesBox');
 
-  runApp(const MyApp());
+  runApp(MultiBlocProvider(providers: [
+    BlocProvider(create: (context) => MoviesBloc()),
+    BlocProvider(create: (context) => SubtitleBloc()),
+    BlocProvider(create: (context) => TvBloc()),
+  ], child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
