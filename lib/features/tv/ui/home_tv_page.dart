@@ -295,6 +295,7 @@ class TvSearchDelegate extends SearchDelegate {
             title: Text(searches[index]),
             onTap: () {
               query = searches[index];
+              showResults(context);
             },
             leading: const Icon(Icons.history_rounded),
             trailing: IconButton(
