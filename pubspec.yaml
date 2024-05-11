@@ -49,6 +49,7 @@ dependencies:
       url: https://github.com/dhruvanbhalara/cr_file_saver
       ref: "fix/incorrect_file_name"
   draggable_home: ^1.0.5
+  readmore: ^3.0.0
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

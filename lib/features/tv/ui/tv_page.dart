@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:readmore/readmore.dart';
 import 'package:subtitle_downloader/components/season_dropdown.dart';
 import 'package:subtitle_downloader/features/tv/bloc/tv_bloc.dart';
 import 'package:subtitle_downloader/features/tv/models/tv_data_ui_model.dart';
@@ -133,7 +134,7 @@ class _TvPageState extends State<TvPage> {
       ),
       headerWidget: CachedNetworkImage(
         imageUrl:
-            'https://image.tmdb.org/t/p/w500${tvDataUiModel.backdropPath}',
+            'https://image.tmdb.org/t/p/w1280${tvDataUiModel.backdropPath}',
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             const SizedBox(),
         alignment: Alignment.topCenter,
@@ -144,8 +145,7 @@ class _TvPageState extends State<TvPage> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Colors.black, Colors.transparent],
-              ).createShader(
-                  Rect.fromLTRB(0, 0, rect.width, rect.height));
+              ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
             },
             blendMode: BlendMode.dstIn,
             child: Image(
@@ -170,28 +170,24 @@ class _TvPageState extends State<TvPage> {
                 ),
                 _buildRatingView(tvDataUiModel),
                 const Gap(8),
-                if (!showMorePressed)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showMorePressed = true;
-                      });
-                    },
-                    child: Text(
-                      tvDataUiModel.overview ?? 'No Overview',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  )
-                else
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showMorePressed = false;
-                      });
-                    },
-                    child: Text(tvDataUiModel.overview ?? 'No Overview'),
+                ReadMoreText(
+                  tvDataUiModel.overview ?? 'No Overview',
+                  trimMode: TrimMode.Line,
+                  trimLines: 3,
+                  trimCollapsedText: '\nShow more',
+                  trimExpandedText: '\nShow less',
+                  textAlign: TextAlign.justify,
+                  moreStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
                   ),
+                  lessStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
                 const Gap(16),
                 const Divider(),
                 const Gap(16),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:hive_flutter/adapters.dart';
+import 'package:readmore/readmore.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
@@ -26,7 +27,6 @@ class MoviePage extends StatefulWidget {
 class _MoviePageState extends State<MoviePage> {
   final MoviesBloc movieBloc = MoviesBloc();
   final SubtitleBloc subtitleBloc = SubtitleBloc();
-  bool showMorePressed = false;
   String oldLanguage = SettingsBox.getDefaultLanguage();
 
   ValueNotifier query = ValueNotifier('');
@@ -118,7 +118,7 @@ class _MoviePageState extends State<MoviePage> {
       ),
       headerWidget: CachedNetworkImage(
         imageUrl:
-            'https://image.tmdb.org/t/p/w500${movieDataUiModel.backdropPath}',
+            'https://image.tmdb.org/t/p/w1280${movieDataUiModel.backdropPath}',
         progressIndicatorBuilder: (context, url, downloadProgress) =>
             const SizedBox(),
         alignment: Alignment.topCenter,
@@ -129,8 +129,7 @@ class _MoviePageState extends State<MoviePage> {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [Colors.black, Colors.transparent],
-              ).createShader(
-                  Rect.fromLTRB(0, 0, rect.width, rect.height));
+              ).createShader(Rect.fromLTRB(0, 0, rect.width, rect.height));
             },
             blendMode: BlendMode.dstIn,
             child: Image(
@@ -155,28 +154,24 @@ class _MoviePageState extends State<MoviePage> {
                 ),
                 _buildRatingView(movieDataUiModel),
                 const Gap(8),
-                if (!showMorePressed)
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showMorePressed = true;
-                      });
-                    },
-                    child: Text(
-                      movieDataUiModel.overview ?? 'No Overview',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  )
-                else
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        showMorePressed = false;
-                      });
-                    },
-                    child: Text(movieDataUiModel.overview ?? 'No Overview'),
+                ReadMoreText(
+                  movieDataUiModel.overview ?? 'No Overview',
+                  trimMode: TrimMode.Line,
+                  trimLines: 3,
+                  trimCollapsedText: '\nShow more',
+                  trimExpandedText: '\nShow less',
+                  textAlign: TextAlign.justify,
+                  moreStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
                   ),
+                  lessStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
                 const Gap(16),
                 const Divider(),
                 const Gap(16),
