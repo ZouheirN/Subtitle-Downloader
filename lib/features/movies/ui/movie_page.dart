@@ -28,8 +28,22 @@ class _MoviePageState extends State<MoviePage> {
   final MoviesBloc movieBloc = MoviesBloc();
   final SubtitleBloc subtitleBloc = SubtitleBloc();
   String oldLanguage = SettingsBox.getDefaultLanguage();
+  bool isHiSelected = false;
 
   ValueNotifier query = ValueNotifier('');
+
+  void onHiChanged(bool value) {
+    if (isHiSelected == value) return;
+    isHiSelected = value;
+
+    subtitleBloc.add(
+      SubtitleMovieInitialFetchEvent(
+        widget.movieId.toString(),
+        oldLanguage,
+        isHiSelected,
+      ),
+    );
+  }
 
   void onLanguageChanged(String language) {
     if (oldLanguage == language) return;
@@ -39,6 +53,7 @@ class _MoviePageState extends State<MoviePage> {
       SubtitleMovieInitialFetchEvent(
         widget.movieId.toString(),
         language,
+        isHiSelected,
       ),
     );
   }
@@ -50,6 +65,7 @@ class _MoviePageState extends State<MoviePage> {
       SubtitleMovieInitialFetchEvent(
         widget.movieId.toString(),
         oldLanguage,
+        isHiSelected,
       ),
     );
     super.initState();
@@ -267,6 +283,16 @@ class _MoviePageState extends State<MoviePage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              const Text('Only HI Subtitles'),
+              Switch(
+                value: isHiSelected,
+                onChanged: onHiChanged,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               const Text('Language'),
               LanguageDropdown(
                 onLanguageChanged: onLanguageChanged,
@@ -327,7 +353,7 @@ class _MoviePageState extends State<MoviePage> {
                                         ? Colors.grey[100]?.withOpacity(0.1)
                                         : null,
                               ),
-                              child: ListTile(
+                              child: ExpansionTile(
                                 title: Text(
                                   e.releaseName!,
                                   style: TextStyle(
@@ -338,18 +364,58 @@ class _MoviePageState extends State<MoviePage> {
                                   ),
                                 ),
                                 subtitle: Text('Uploader: ${e.author!}'),
-                                onTap: () {
-                                  subtitleBloc.add(
-                                    SubtitleDownloadEvent(
-                                      e.url!,
-                                      e.name!,
-                                      e.author!,
-                                      e.releaseName!,
-                                      subtitlesDataUiModel.results!.first.name!,
-                                      'movie',
+                                children: [
+                                  if (e.comment != null && e.comment != '')
+                                    ListTile(
+                                      title: const Text(
+                                        'Comment',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(e.comment!),
                                     ),
-                                  );
-                                },
+                                  if (e.releases != null &&
+                                      e.releases!.isNotEmpty)
+                                    ListTile(
+                                      title: const Text(
+                                        'Releases',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          for (var release in e.releases!)
+                                            Text(release),
+                                        ],
+                                      ),
+                                    ),
+                                  OverflowBar(
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          subtitleBloc.add(
+                                            SubtitleDownloadEvent(
+                                              e.url!,
+                                              e.name!,
+                                              e.author!,
+                                              e.releaseName!,
+                                              subtitlesDataUiModel
+                                                  .results!.first.name!,
+                                              'movie',
+                                            ),
+                                          );
+                                        },
+                                        label: const Text('Download'),
+                                        icon: const Icon(
+                                            Icons.download_for_offline_rounded),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
                           },

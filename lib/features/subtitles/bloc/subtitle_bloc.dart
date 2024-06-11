@@ -27,6 +27,7 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
         await SubtitlesRepo.fetchMovieSubtitles(
       tmdbId: event.movieId,
       language: event.language,
+      includeHi: event.includeHi,
     );
 
     if (subtitlesDataUiModel == null) {
@@ -70,6 +71,7 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
       season: event.season,
       episode: event.episode,
       language: event.language,
+      includeHi: event.includeHi,
     );
 
     if (subtitlesDataUiModel == null) {

@@ -7,8 +7,9 @@ sealed class SubtitleEvent {}
 class SubtitleMovieInitialFetchEvent extends SubtitleEvent {
   final String movieId;
   final String language;
+  final bool includeHi;
 
-  SubtitleMovieInitialFetchEvent(this.movieId, this.language);
+  SubtitleMovieInitialFetchEvent(this.movieId, this.language, this.includeHi);
 }
 
 // TV Subtitles
@@ -17,9 +18,10 @@ class SubtitleTvInitialFetchEvent extends SubtitleEvent {
   final int season;
   final int episode;
   final String language;
+  final bool includeHi;
 
   SubtitleTvInitialFetchEvent(
-      this.tvId, this.season, this.episode, this.language);
+      this.tvId, this.season, this.episode, this.language, this.includeHi);
 }
 
 class SubtitleDownloadEvent extends SubtitleEvent {

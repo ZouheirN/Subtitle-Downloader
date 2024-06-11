@@ -13,6 +13,7 @@ class SubtitlesRepo {
   static Future<SubtitlesDataUiModel?> fetchMovieSubtitles({
     required String tmdbId,
     required String language,
+    required bool includeHi,
   }) async {
     try {
       Response response = await dio.get(
@@ -23,6 +24,9 @@ class SubtitlesRepo {
           'languages': language,
           'type': 'movie',
           'subs_per_page': 30,
+          'hi': includeHi ? 1 : 0,
+          'comment': 1,
+          'releases': 1,
         },
       );
 
@@ -38,6 +42,7 @@ class SubtitlesRepo {
     required int season,
     required int episode,
     required String language,
+    required bool includeHi,
   }) async {
     try {
       Response response = await dio.get(
@@ -50,6 +55,9 @@ class SubtitlesRepo {
           'episode_number': episode,
           'type': 'tv',
           'subs_per_page': 30,
+          'hi': includeHi ? 1 : 0,
+          'comment': 1,
+          'releases': 1,
         },
       );
 

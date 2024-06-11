@@ -32,6 +32,7 @@ class _TvPageState extends State<TvPage> {
   String oldLanguage = SettingsBox.getDefaultLanguage();
   int oldSeason = 1;
   int oldEpisode = 1;
+  bool isHiSelected = false;
 
   ValueNotifier query = ValueNotifier('');
 
@@ -45,6 +46,22 @@ class _TvPageState extends State<TvPage> {
         oldSeason,
         oldEpisode,
         language,
+        isHiSelected,
+      ),
+    );
+  }
+
+  void onHiChanged(bool value) {
+    if (isHiSelected == value) return;
+    isHiSelected = value;
+
+    subtitleBloc.add(
+      SubtitleTvInitialFetchEvent(
+        widget.tvId.toString(),
+        oldSeason,
+        oldEpisode,
+        oldLanguage,
+        isHiSelected,
       ),
     );
   }
@@ -61,6 +78,7 @@ class _TvPageState extends State<TvPage> {
         oldSeason,
         oldEpisode,
         oldLanguage,
+        isHiSelected,
       ),
     );
   }
@@ -74,6 +92,7 @@ class _TvPageState extends State<TvPage> {
         oldSeason,
         oldEpisode,
         oldLanguage,
+        isHiSelected,
       ),
     );
     super.initState();
@@ -284,6 +303,16 @@ class _TvPageState extends State<TvPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              const Text('Only HI Subtitles'),
+              Switch(
+                value: isHiSelected,
+                onChanged: onHiChanged,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               const Text('Language'),
               LanguageDropdown(
                 onLanguageChanged: onLanguageChanged,
@@ -350,7 +379,7 @@ class _TvPageState extends State<TvPage> {
                                         ? Colors.grey[100]?.withOpacity(0.1)
                                         : null,
                               ),
-                              child: ListTile(
+                              child: ExpansionTile(
                                 title: Text(
                                   e.releaseName!,
                                   style: TextStyle(
@@ -361,18 +390,57 @@ class _TvPageState extends State<TvPage> {
                                   ),
                                 ),
                                 subtitle: Text('Uploader: ${e.author!}'),
-                                onTap: () {
-                                  subtitleBloc.add(
-                                    SubtitleDownloadEvent(
-                                      e.url!,
-                                      e.name!,
-                                      e.author!,
-                                      e.releaseName!,
-                                      subtitlesDataUiModel.results!.first.name!,
-                                      'tv',
+                                children: [
+                                  if (e.comment != null && e.comment != '')
+                                    ListTile(
+                                      title: const Text(
+                                        'Comment',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Text(e.comment!),
                                     ),
-                                  );
-                                },
+                                  if (e.releases != null &&
+                                      e.releases!.isNotEmpty)
+                                    ListTile(
+                                      title: const Text(
+                                        'Releases',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      subtitle: Column(
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                        children: [
+                                          for (var release in e.releases!)
+                                            Text(release),
+                                        ],
+                                      ),
+                                    ),
+                                  OverflowBar(
+                                    children: [
+                                      ElevatedButton.icon(
+                                        onPressed: () {
+                                          subtitleBloc.add(
+                                            SubtitleDownloadEvent(
+                                              e.url!,
+                                              e.name!,
+                                              e.author!,
+                                              e.releaseName!,
+                                              subtitlesDataUiModel.results!.first.name!,
+                                              'tv',
+                                            ),
+                                          );
+                                        },
+                                        label: const Text('Download'),
+                                        icon: const Icon(
+                                            Icons.download_for_offline_rounded),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             );
                           },
