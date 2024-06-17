@@ -49,7 +49,7 @@ class _HomeTvPageState extends State<HomeTvPage> {
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
               bloc: TvBloc()..add(TrendingTvInitialFetchEvent()),
-              buildWhen: (previous, current) => current is !TvActionState,
+              buildWhen: (previous, current) => current is! TvActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (TrendingTvFetchingLoadingState):
@@ -79,8 +79,8 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc:TvBloc()..add(OnTheAirTvInitialFetchEvent()),
-              buildWhen: (previous, current) => current is !TvActionState,
+              bloc: TvBloc()..add(OnTheAirTvInitialFetchEvent()),
+              buildWhen: (previous, current) => current is! TvActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (OnTheAirTvFetchingLoadingState):
@@ -104,42 +104,72 @@ class _HomeTvPageState extends State<HomeTvPage> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 16, right: 16, bottom: 16),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        "https://image.tmdb.org/t/p/w500${e.posterPath!}",
-                                    imageBuilder: (context, imageProvider) {
-                                      return Container(
-                                        width: 150,
-                                        height: 225,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
+                                  child: e.posterPath == null
+                                      ? Container(
+                                          width: 150,
+                                          height: 225,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            color: Colors.grey[100]!
+                                                .withOpacity(0.1),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                    progressIndicatorBuilder:
-                                        (context, url, progress) {
-                                      return Container(
-                                        width: 150,
-                                        height: 225,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          color: Colors.grey[100]!
-                                              .withOpacity(0.1),
-                                        ),
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                            value: progress.progress,
+                                          child: Center(
+                                            child: Text(
+                                              e.name ?? '',
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
+                                        )
+                                      : CachedNetworkImage(
+                                          imageUrl:
+                                              "https://image.tmdb.org/t/p/w500${e.posterPath}",
+                                          imageBuilder:
+                                              (context, imageProvider) {
+                                            return Container(
+                                              width: 150,
+                                              height: 225,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                image: DecorationImage(
+                                                  image: imageProvider,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          progressIndicatorBuilder:
+                                              (context, url, progress) {
+                                            return Container(
+                                              width: 150,
+                                              height: 225,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                color: Colors.grey[100]!
+                                                    .withOpacity(0.1),
+                                              ),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  value: progress.progress,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          errorWidget: (context, url, error) {
+                                            return Container(
+                                              width: 150,
+                                              height: 225,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Text(e.name ?? ''),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
                                 ),
                               ),
                             )
@@ -251,7 +281,7 @@ class TvSearchDelegate extends SearchDelegate {
 
     return BlocBuilder<TvBloc, TvState>(
       bloc: tvBloc,
-      buildWhen: (previous, current) => current is !TvActionState,
+      buildWhen: (previous, current) => current is! TvActionState,
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (TvSearchFetchingLoadingState):

@@ -48,7 +48,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
               bloc: MoviesBloc()..add(TrendingMoviesInitialFetchEvent()),
-              buildWhen: (previous, current) => current is !MoviesActionState,
+              buildWhen: (previous, current) => current is! MoviesActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (TrendingMoviesFetchingLoadingState):
@@ -79,7 +79,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
               bloc: MoviesBloc()..add(NowPlayingMoviesInitialFetchEvent()),
-              buildWhen: (previous, current) => current is !MoviesActionState,
+              buildWhen: (previous, current) => current is! MoviesActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
                   case const (NowPlayingMoviesFetchingLoadingState):
@@ -105,42 +105,72 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(
                                       left: 16, right: 16, bottom: 16),
-                                  child: CachedNetworkImage(
-                                    imageUrl:
-                                        "https://image.tmdb.org/t/p/w500${e.posterPath!}",
-                                    imageBuilder: (context, imageProvider) {
-                                      return Container(
-                                        width: 150,
-                                        height: 225,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          image: DecorationImage(
-                                            image: imageProvider,
-                                            fit: BoxFit.cover,
+                                  child: e.posterPath == null
+                                      ? Container(
+                                          width: 150,
+                                          height: 225,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            color: Colors.grey[100]!
+                                                .withOpacity(0.1),
                                           ),
-                                        ),
-                                      );
-                                    },
-                                    progressIndicatorBuilder:
-                                        (context, url, progress) {
-                                      return Container(
-                                        width: 150,
-                                        height: 225,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          color: Colors.grey[100]!
-                                              .withOpacity(0.1),
-                                        ),
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                            value: progress.progress,
+                                          child: Center(
+                                            child: Text(
+                                              e.title ?? '',
+                                              textAlign: TextAlign.center,
+                                            ),
                                           ),
+                                        )
+                                      : CachedNetworkImage(
+                                          imageUrl:
+                                              "https://image.tmdb.org/t/p/w500${e.posterPath!}",
+                                          imageBuilder:
+                                              (context, imageProvider) {
+                                            return Container(
+                                              width: 150,
+                                              height: 225,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                image: DecorationImage(
+                                                  image: imageProvider,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          progressIndicatorBuilder:
+                                              (context, url, progress) {
+                                            return Container(
+                                              width: 150,
+                                              height: 225,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                color: Colors.grey[100]!
+                                                    .withOpacity(0.1),
+                                              ),
+                                              child: Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  value: progress.progress,
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                          errorWidget: (context, url, error) {
+                                            return Container(
+                                              width: 150,
+                                              height: 225,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                              ),
+                                              child: Text(e.title ?? ''),
+                                            );
+                                          },
                                         ),
-                                      );
-                                    },
-                                  ),
                                 ),
                               ),
                             )
@@ -259,7 +289,7 @@ class MovieSearchDelegate extends SearchDelegate {
 
     return BlocBuilder<MoviesBloc, MoviesState>(
       bloc: moviesBloc,
-      buildWhen: (previous, current) => current is !MoviesActionState,
+      buildWhen: (previous, current) => current is! MoviesActionState,
       builder: (context, state) {
         switch (state.runtimeType) {
           case const (MovieSearchFetchingLoadingState):
