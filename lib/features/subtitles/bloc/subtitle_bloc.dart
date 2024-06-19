@@ -17,6 +17,7 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
     on<SubtitleMovieInitialFetchEvent>(subtitleMovieInitialFetchEvent);
     on<SubtitleDownloadEvent>(subtitleDownloadEvent);
     on<SubtitleTvInitialFetchEvent>(subtitleTvInitialFetchEvent);
+    on<SubtitleInitialFetchFromFileName>(subtitleInitialFetchFromFileName);
   }
 
   Future<FutureOr<void>> subtitleMovieInitialFetchEvent(
@@ -78,6 +79,24 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
       emit(SubtitleTvFetchingErrorState());
     } else {
       emit(SubtitleTvFetchingSuccessfulState(subtitlesDataUiModel));
+    }
+  }
+
+  Future<FutureOr<void>> subtitleInitialFetchFromFileName(
+      SubtitleInitialFetchFromFileName event,
+      Emitter<SubtitleState> emit) async {
+    emit(SubtitleMovieFetchingLoadingState());
+
+    SubtitlesDataUiModel? subtitlesDataUiModel =
+        await SubtitlesRepo.fetchSubtitlesFromFileName(
+      fileName: event.fileName,
+      includeHi: false, // todo
+    );
+
+    if (subtitlesDataUiModel == null) {
+      emit(SubtitleMovieFetchingErrorState());
+    } else {
+      emit(SubtitleMovieFetchingSuccessfulState(subtitlesDataUiModel));
     }
   }
 }

@@ -30,6 +30,10 @@ class SubtitlesRepo {
         },
       );
 
+      if (response.data['status'] == false) {
+        return null;
+      }
+
       return SubtitlesDataUiModel.fromJson(response.data);
     } on DioException catch (e) {
       logger.e(e.toString());
@@ -61,6 +65,10 @@ class SubtitlesRepo {
         },
       );
 
+      if (response.data['status'] == false) {
+        return null;
+      }
+
       return SubtitlesDataUiModel.fromJson(response.data);
     } on DioException catch (e) {
       logger.e(e.toString());
@@ -73,7 +81,8 @@ class SubtitlesRepo {
     required String name,
   }) async {
     try {
-      String zipName = name.replaceFirst("SUBDL::", "").replaceFirst("SUBDL.com::", "");
+      String zipName =
+          name.replaceFirst("SUBDL::", "").replaceFirst("SUBDL.com::", "");
 
       final tempDirectory = await getTemporaryDirectory();
 
@@ -94,6 +103,34 @@ class SubtitlesRepo {
     } on DioException catch (e) {
       logger.e(e.toString());
       return -1; // Error
+    }
+  }
+
+  static Future<SubtitlesDataUiModel?> fetchSubtitlesFromFileName({
+    required String fileName,
+    required bool includeHi,
+  }) async {
+    try {
+      Response response = await dio.get(
+        'https://api.subdl.com/api/v1/subtitles',
+        queryParameters: {
+          'api_key': subdlApiKey,
+          'file_name': fileName,
+          'subs_per_page': 30,
+          'hi': includeHi ? 1 : 0,
+          'comment': 1,
+          'releases': 1,
+        },
+      );
+
+      if (response.data['status'] == false) {
+        return null;
+      }
+
+      return SubtitlesDataUiModel.fromJson(response.data);
+    } on DioException catch (e) {
+      logger.e(e.toString());
+      return null;
     }
   }
 }

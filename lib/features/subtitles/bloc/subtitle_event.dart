@@ -24,6 +24,7 @@ class SubtitleTvInitialFetchEvent extends SubtitleEvent {
       this.tvId, this.season, this.episode, this.language, this.includeHi);
 }
 
+// Download Subtitles
 class SubtitleDownloadEvent extends SubtitleEvent {
   final String url;
   final String name;
@@ -34,4 +35,11 @@ class SubtitleDownloadEvent extends SubtitleEvent {
 
   SubtitleDownloadEvent(this.url, this.name, this.author, this.releaseName,
       this.mediaName, this.type);
+}
+
+// Fetch Subtitles from file name
+class SubtitleInitialFetchFromFileName extends SubtitleEvent {
+  final String fileName;
+
+  SubtitleInitialFetchFromFileName(this.fileName);
 }

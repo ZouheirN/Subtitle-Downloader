@@ -123,7 +123,7 @@ class Subtitle {
         subtitlePage: json["subtitlePage"],
         season: json["season"],
         episode: json["episode"],
-        language: languageValues.map[json["language"]]!,
+        language: languageValues.map[json["language"]],
         hi: json["hi"],
         comment: json["comment"],
         releases: json["releases"] == null

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:subtitle_downloader/features/file_manager/ui/file_subtitle_select_dialog.dart';
 
 class FileManagerPage extends StatelessWidget {
   final FileManagerController _fileManagerController = FileManagerController();
@@ -17,18 +18,18 @@ class FileManagerPage extends StatelessWidget {
         appBar: AppBar(
           actions: [
             IconButton(
-              onPressed: () async => {
-                if (await Permission.storage.request().isGranted)
-                  {
-                    if (context.mounted)
-                      {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Permission Granted"),
-                          ),
-                        ),
-                      }
-                  },
+              onPressed: () async {
+                if (!await Permission.manageExternalStorage.isGranted) {
+                  await Permission.manageExternalStorage.request();
+                } else {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Permission already granted"),
+                      ),
+                    );
+                  }
+                }
               },
               icon: const Icon(Icons.settings_rounded),
               tooltip: "Request Files Access Permission",
@@ -78,20 +79,21 @@ class FileManagerPage extends StatelessWidget {
                         // open the folder
                         _fileManagerController.openDirectory(entity);
                       } else {
-                        // delete a file
-                        // await entity.delete();
+                        String fileName = entity.path.split('/').last;
+                        List<String> nameParts = fileName.split('.');
+                        nameParts.removeLast(); // Remove the file extension
+                        fileName = nameParts.join('.');
 
-                        // rename a file
-                        // await entity.rename("newPath");
-
-                        // Check weather file exists
-                        // entity.exists();
-
-                        // get date of file
-                        // DateTime date = (await entity.stat()).modified;
-
-                        // get the size of the file
-                        // int size = (await entity.stat()).size;
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) {
+                            return FileSubtitleSelectDialog(
+                              fileName: fileName,
+                            );
+                          },
+                        );
                       }
                     },
                   ),
