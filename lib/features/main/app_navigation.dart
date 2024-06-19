@@ -6,6 +6,7 @@ import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
 import 'package:subtitle_downloader/features/subtitles/ui/downloaded_subtitles_history_page.dart';
 import 'package:subtitle_downloader/features/tv/ui/home_tv_page.dart';
 
+import '../file_manager/ui/file_manager_page.dart';
 import '../movies/ui/movie_page.dart';
 import '../profile/ui/settings_page.dart';
 import '../tv/ui/tv_page.dart';
@@ -21,6 +22,8 @@ class AppNavigation {
       GlobalKey<NavigatorState>(debugLabel: 'shellTV');
   static final _rootNavigatorProfile =
       GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
+  static final _rootFileManagerProfile =
+  GlobalKey<NavigatorState>(debugLabel: 'shellFileManager');
 
   // Go Router Configuration
   static final GoRouter router = GoRouter(
@@ -86,6 +89,19 @@ class AppNavigation {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+          // Branch File Manager
+          StatefulShellBranch(
+            navigatorKey: _rootFileManagerProfile,
+            routes: [
+              GoRoute(
+                path: '/file-manager',
+                name: 'File Manager',
+                builder: (context, state) {
+                  return FileManagerPage();
+                },
               ),
             ],
           ),

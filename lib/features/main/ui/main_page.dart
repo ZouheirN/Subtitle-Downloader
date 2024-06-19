@@ -43,6 +43,11 @@ class _MainPageState extends State<MainPage> {
             label: 'TV',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.folder_rounded),
+
+            label: 'File Manager',
+          ),
+          BottomNavigationBarItem(
             icon: Icon(Icons.person_rounded),
             label: 'Profile',
           ),
