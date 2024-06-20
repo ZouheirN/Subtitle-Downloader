@@ -9,7 +9,6 @@ import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 import '../repos/subtitles_repo.dart';
 
 part 'subtitle_event.dart';
-
 part 'subtitle_state.dart';
 
 class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
@@ -90,7 +89,8 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
     SubtitlesDataUiModel? subtitlesDataUiModel =
         await SubtitlesRepo.fetchSubtitlesFromFileName(
       fileName: event.fileName,
-      includeHi: false, // todo
+      includeHi: event.includeHi,
+      language: event.language,
     );
 
     if (subtitlesDataUiModel == null) {

@@ -40,6 +40,8 @@ class SubtitleDownloadEvent extends SubtitleEvent {
 // Fetch Subtitles from file name
 class SubtitleInitialFetchFromFileName extends SubtitleEvent {
   final String fileName;
+  final String language;
+  final bool includeHi;
 
-  SubtitleInitialFetchFromFileName(this.fileName);
+  SubtitleInitialFetchFromFileName(this.fileName,this.language, this.includeHi);
 }

@@ -109,6 +109,7 @@ class SubtitlesRepo {
   static Future<SubtitlesDataUiModel?> fetchSubtitlesFromFileName({
     required String fileName,
     required bool includeHi,
+    required String language,
   }) async {
     try {
       Response response = await dio.get(
@@ -116,6 +117,7 @@ class SubtitlesRepo {
         queryParameters: {
           'api_key': subdlApiKey,
           'file_name': fileName,
+          'languages': language,
           'subs_per_page': 30,
           'hi': includeHi ? 1 : 0,
           'comment': 1,
