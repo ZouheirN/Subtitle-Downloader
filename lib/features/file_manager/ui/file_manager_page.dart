@@ -31,7 +31,7 @@ class FileManagerPage extends StatelessWidget {
                   }
                 }
               },
-              icon: const Icon(Icons.settings_rounded),
+              icon: const Icon(Icons.key_rounded),
               tooltip: "Request Files Access Permission",
             ),
             IconButton(

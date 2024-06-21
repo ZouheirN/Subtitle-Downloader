@@ -255,13 +255,16 @@ class _TvPageState extends State<TvPage> {
                   builder: (context, state) {
                     switch (state.runtimeType) {
                       case const (SubtitleTvFetchingLoadingState):
-                        return const Center(child: CircularProgressIndicator());
+                        return _buildSubtitleViewLoading(tvDataUiModel);
 
                       case const (SubtitleTvFetchingSuccessfulState):
                         final successState =
                             state as SubtitleTvFetchingSuccessfulState;
                         return _buildSubtitleView(
                             successState.subtitlesDataUiModel, tvDataUiModel);
+
+                      case const (SubtitleTvFetchingErrorState):
+                        return _buildSubtitleViewError(tvDataUiModel);
 
                       default:
                         return const SizedBox();
@@ -412,7 +415,7 @@ class _TvPageState extends State<TvPage> {
                                       ),
                                       subtitle: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           for (var release in e.releases!)
                                             Text(release),
@@ -429,7 +432,8 @@ class _TvPageState extends State<TvPage> {
                                               e.name!,
                                               e.author!,
                                               e.releaseName!,
-                                              subtitlesDataUiModel.results!.first.name!,
+                                              subtitlesDataUiModel
+                                                  .results!.first.name!,
                                               'tv',
                                             ),
                                           );
@@ -450,6 +454,106 @@ class _TvPageState extends State<TvPage> {
                 );
               },
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubtitleViewLoading(TvDataUiModel tvDataUiModel) {
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Only HI Subtitles'),
+              Switch(
+                value: isHiSelected,
+                onChanged: onHiChanged,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Language'),
+              LanguageDropdown(
+                onLanguageChanged: onLanguageChanged,
+                initialLanguage: oldLanguage,
+              ),
+            ],
+          ),
+          SeasonDropdown(
+            initialSeason: oldSeason,
+            initialEpisode: oldEpisode,
+            seasons: tvDataUiModel.seasons ?? [],
+            onSeasonChanged: onSeasonChanged,
+          ),
+          const Gap(8),
+          TextField(
+            onChanged: (newQuery) {
+              setState(() {
+                query.value = newQuery;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search Subtitles',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+          const Gap(8),
+          const CircularProgressIndicator(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubtitleViewError(TvDataUiModel tvDataUiModel) {
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Only HI Subtitles'),
+              Switch(
+                value: isHiSelected,
+                onChanged: onHiChanged,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Language'),
+              LanguageDropdown(
+                onLanguageChanged: onLanguageChanged,
+                initialLanguage: oldLanguage,
+              ),
+            ],
+          ),
+          SeasonDropdown(
+            initialSeason: oldSeason,
+            initialEpisode: oldEpisode,
+            seasons: tvDataUiModel.seasons ?? [],
+            onSeasonChanged: onSeasonChanged,
+          ),
+          const Gap(8),
+          TextField(
+            onChanged: (newQuery) {
+              setState(() {
+                query.value = newQuery;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search Subtitles',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+          const Gap(8),
+          const Text('Error Fetching Subtitles'),
         ],
       ),
     );

@@ -236,13 +236,16 @@ class _MoviePageState extends State<MoviePage> {
                   builder: (context, state) {
                     switch (state.runtimeType) {
                       case const (SubtitleMovieFetchingLoadingState):
-                        return const Center(child: CircularProgressIndicator());
+                        return _buildSubtitleViewLoading();
 
                       case const (SubtitleMovieFetchingSuccessfulState):
                         final successState =
                             state as SubtitleMovieFetchingSuccessfulState;
                         return _buildSubtitleView(
                             successState.subtitlesDataUiModel);
+
+                      case const (SubtitleMovieFetchingErrorState):
+                        return _buildSubtitleViewError();
 
                       default:
                         return const SizedBox();
@@ -425,6 +428,94 @@ class _MoviePageState extends State<MoviePage> {
                 );
               },
             ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubtitleViewLoading() {
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Only HI Subtitles'),
+              Switch(
+                value: isHiSelected,
+                onChanged: onHiChanged,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Language'),
+              LanguageDropdown(
+                onLanguageChanged: onLanguageChanged,
+                initialLanguage: oldLanguage,
+              ),
+            ],
+          ),
+          const Gap(8),
+          TextField(
+            onChanged: (newQuery) {
+              setState(() {
+                query.value = newQuery;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search Subtitles',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+          const Gap(8),
+          const CircularProgressIndicator(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubtitleViewError() {
+    return Align(
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Only HI Subtitles'),
+              Switch(
+                value: isHiSelected,
+                onChanged: onHiChanged,
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text('Language'),
+              LanguageDropdown(
+                onLanguageChanged: onLanguageChanged,
+                initialLanguage: oldLanguage,
+              ),
+            ],
+          ),
+          const Gap(8),
+          TextField(
+            onChanged: (newQuery) {
+              setState(() {
+                query.value = newQuery;
+              });
+            },
+            decoration: const InputDecoration(
+              hintText: 'Search Subtitles',
+              prefixIcon: Icon(Icons.search),
+            ),
+          ),
+          const Gap(8),
+          const Text('Failed to Fetch Subtitles'),
         ],
       ),
     );

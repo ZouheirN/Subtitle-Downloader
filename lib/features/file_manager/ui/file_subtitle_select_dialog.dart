@@ -76,6 +76,9 @@ class _FileSubtitleSelectDialogState extends State<FileSubtitleSelectDialog> {
             return _buildChoicesList(
                 successState.subtitlesDataUiModel, context);
 
+          case const (SubtitleMovieFetchingErrorState):
+            return _buildChoicesListError(context);
+
           default:
             return const SizedBox();
         }
@@ -364,6 +367,72 @@ class _FileSubtitleSelectDialogState extends State<FileSubtitleSelectDialog> {
                     const Gap(8),
                     const Center(
                       child: CircularProgressIndicator(),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildChoicesListError(BuildContext context) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        color: const Color.fromRGBO(0, 0, 0, 0.001),
+        child: GestureDetector(
+          onTap: () {},
+          child: DraggableScrollableSheet(
+            initialChildSize: 0.4,
+            minChildSize: 0.2,
+            maxChildSize: 0.75,
+            builder: (_, controller) {
+              return Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(25.0),
+                    topRight: Radius.circular(25.0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.remove,
+                      color: Colors.grey[600],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Only HI Subtitles'),
+                          Switch(
+                            value: isHiSelected,
+                            onChanged: onHiChanged,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text('Language'),
+                          LanguageDropdown(
+                            onLanguageChanged: onLanguageChanged,
+                            initialLanguage: oldLanguage,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Gap(8),
+                    const Center(
+                      child: Text('Error Fetching Subtitles'),
                     ),
                   ],
                 ),
