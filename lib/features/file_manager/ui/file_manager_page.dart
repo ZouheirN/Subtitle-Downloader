@@ -45,7 +45,12 @@ class FileManagerPage extends StatelessWidget {
               tooltip: "Select Storage",
             )
           ],
-          title: const Text("File Manager"),
+          title: ValueListenableBuilder<String>(
+            valueListenable: _fileManagerController.titleNotifier,
+            builder: (context, value, child) {
+              return Text(value);
+            },
+          ),
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
