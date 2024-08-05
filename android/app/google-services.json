@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1048358993447",
+    "project_id": "subtitle-downloader-1580b",
+    "storage_bucket": "subtitle-downloader-1580b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048358993447:android:8cb7ed3234091cb776d802",
+        "android_client_info": {
+          "package_name": "com.zouheirn.subtitledownloader"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOe8ex07xdtkQTh5GOSPbiGk-_xEUysao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

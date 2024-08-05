@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyAkDwXluqF0uamjFi-2p3G5I2csU7AUKc4</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1048358993447</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.zouheirn.subtitledownloader</string>
+	<key>PROJECT_ID</key>
+	<string>subtitle-downloader-1580b</string>
+	<key>STORAGE_BUCKET</key>
+	<string>subtitle-downloader-1580b.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1048358993447:ios:8cba2cc96737e61e76d802</string>
+</dict>
+</plist>

@@ -1,11 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtitle_downloader/features/authentication/ui/sign_up_page.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
 import 'package:subtitle_downloader/features/movies/ui/home_movies_page.dart';
 import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
 import 'package:subtitle_downloader/features/subtitles/ui/downloaded_subtitles_history_page.dart';
 import 'package:subtitle_downloader/features/tv/ui/home_tv_page.dart';
 
+import '../authentication/ui/login_page.dart';
 import '../file_manager/ui/file_manager_page.dart';
 import '../movies/ui/movie_page.dart';
 import '../profile/ui/settings_page.dart';
@@ -23,7 +25,7 @@ class AppNavigation {
   static final _rootNavigatorProfile =
       GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
   static final _rootFileManagerProfile =
-  GlobalKey<NavigatorState>(debugLabel: 'shellFileManager');
+      GlobalKey<NavigatorState>(debugLabel: 'shellFileManager');
 
   // Go Router Configuration
   static final GoRouter router = GoRouter(
@@ -125,12 +127,31 @@ class AppNavigation {
                       return const DownloadedSubtitlesHistoryPage();
                     },
                   ),
+                  // Settings
                   GoRoute(
                     path: 'settings',
                     name: 'Settings',
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
                       return const SettingsPage();
+                    },
+                  ),
+                  // Login
+                  GoRoute(
+                    path: 'login',
+                    name: 'Login',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      return const LoginPage();
+                    },
+                  ),
+                  // Sign Up
+                  GoRoute(
+                    path: 'sign-up',
+                    name: 'Sign Up',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      return const SignUpPage();
                     },
                   ),
                 ],
