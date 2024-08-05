@@ -9,6 +9,7 @@ import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 import '../repos/subtitles_repo.dart';
 
 part 'subtitle_event.dart';
+
 part 'subtitle_state.dart';
 
 class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
@@ -51,7 +52,8 @@ class SubtitleBloc extends Bloc<SubtitleEvent, SubtitleState> {
 
       if (response == 1) {
         DownloadedSubtitlesBox.addDownloadedSubtitle(
-            event.url, event.releaseName, event.author, event.mediaName);
+            event.url, event.releaseName, event.author, event.mediaName,
+            localOnly: false);
         emit(SubtitleDownloadSuccessState());
       } else if (response == -1) {
         emit(SubtitleDownloadErrorState());

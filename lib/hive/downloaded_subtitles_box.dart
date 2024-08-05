@@ -1,10 +1,12 @@
 import 'package:hive/hive.dart';
+import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
 
 class DownloadedSubtitlesBox {
   static Box downloadedSubtitlesBox = Hive.box('downloadedSubtitlesBox');
 
   static void addDownloadedSubtitle(
-      String url, String releaseName, String author, String movieName) {
+      String url, String releaseName, String author, String movieName,
+      {required bool localOnly}) {
     // do not add if already exists
     if (downloadedSubtitlesBox.containsKey(url)) return;
 
@@ -13,6 +15,11 @@ class DownloadedSubtitlesBox {
       'author': author,
       'movieName': movieName,
     });
+
+    if (localOnly) return;
+    // sync to firestore
+    FirestoreService().addSubtitleToFirestore(
+        url, releaseName, author, movieName);
   }
 
   static bool isSubtitleDownloaded(String url) {
@@ -46,5 +53,8 @@ class DownloadedSubtitlesBox {
 
   static void clearAllDownloadedSubtitles() {
     downloadedSubtitlesBox.clear();
+
+    // clear firestore
+    FirestoreService().clearAllSubtitlesFromFirestore();
   }
 }
