@@ -17,12 +17,31 @@ class _LoginPageState extends State<LoginPage> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  String? _validateEmail(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter an email';
+    }
+    final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
+    if (!emailRegex.hasMatch(value)) {
+      return 'Please enter a valid email';
+    }
+    return null;
+  }
+
+  String? _validatePassword(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter a password';
+    }
+    return null;
   }
 
   @override
@@ -34,41 +53,46 @@ class _LoginPageState extends State<LoginPage> {
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                ),
-              ),
-              const Gap(8),
-              TextField(
-                controller: _passwordController,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                ),
-                obscureText: true,
-              ),
-              const Gap(16),
-              ElevatedButton(
-                onPressed: _signIn,
-                child: const Text('Login'),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('Don\'t have an account?'),
-                  TextButton(
-                    onPressed: () {
-                      context.pushReplacementNamed('Sign Up');
-                    },
-                    child: const Text('Sign Up'),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
                   ),
-                ],
-              ),
-            ],
+                  validator: _validateEmail,
+                ),
+                const Gap(8),
+                TextFormField(
+                  controller: _passwordController,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                  ),
+                  obscureText: true,
+                  validator: _validatePassword,
+                ),
+                const Gap(16),
+                ElevatedButton(
+                  onPressed: _signIn,
+                  child: const Text('Login'),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Don\'t have an account?'),
+                    TextButton(
+                      onPressed: () {
+                        context.pushReplacementNamed('Sign Up');
+                      },
+                      child: const Text('Sign Up'),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -76,21 +100,23 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _signIn() async {
-    String email = _emailController.text.trim();
-    String password = _passwordController.text.trim();
+    if (_formKey.currentState?.validate() ?? false) {
+      String email = _emailController.text.trim();
+      String password = _passwordController.text.trim();
 
-    User? user = await _authService.signInWithEmailAndPassword(email, password);
+      User? user = await _authService.signInWithEmailAndPassword(email, password);
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (user != null) {
-      context.pop();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Login failed'),
-        ),
-      );
+      if (user != null) {
+        context.pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login failed'),
+          ),
+        );
+      }
     }
   }
 }
