@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtitle_downloader/features/authentication/ui/forget_password_page.dart';
 import 'package:subtitle_downloader/features/authentication/ui/sign_up_page.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
 import 'package:subtitle_downloader/features/movies/ui/home_movies_page.dart';
@@ -144,6 +145,17 @@ class AppNavigation {
                     builder: (context, state) {
                       return const LoginPage();
                     },
+                    routes: [
+                      // Forget Password
+                      GoRoute(
+                        path: 'forget-password',
+                        name: 'Forget Password',
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) {
+                          return const ForgetPasswordPage();
+                        },
+                      ),
+                    ],
                   ),
                   // Sign Up
                   GoRoute(

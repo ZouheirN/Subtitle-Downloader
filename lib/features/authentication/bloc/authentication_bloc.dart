@@ -14,6 +14,7 @@ class AuthenticationBloc
     on<SignUpInitialEvent>(signUpInitialEvent);
     on<SignInInitialEvent>(signInInitialEvent);
     on<SignOutInitialEvent>(signOutInitialEvent);
+    on<PasswordResetInitialEvent>(passwordResetInitialEvent);
   }
 
   Future<FutureOr<void>> signUpInitialEvent(
@@ -61,5 +62,20 @@ class AuthenticationBloc
     }
 
     emit(SignOutSuccessfulState());
+  }
+
+  FutureOr<void> passwordResetInitialEvent(
+      PasswordResetInitialEvent event, Emitter<AuthenticationState> emit) {
+    emit(PasswordResetLoadingState());
+
+    try {
+      AuthService().sendPasswordResetEmail(event.email);
+    } catch (e) {
+      emit(PasswordResetErrorState(
+          'Error sending password reset email. Please try again.'));
+      return null;
+    }
+
+    emit(PasswordResetSuccessfulState());
   }
 }

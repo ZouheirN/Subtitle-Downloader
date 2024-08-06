@@ -5,8 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
-import '../repos/auth_service.dart';
-
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,7 +13,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _authService = AuthService();
   final _authenticationBloc = AuthenticationBloc();
 
   final TextEditingController _emailController = TextEditingController();
@@ -72,12 +69,25 @@ class _LoginPageState extends State<LoginPage> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
-                    labelText: 'Password',
+                    hintText: 'Password',
                   ),
                   obscureText: true,
                   validator: _validatePassword,
                 ),
-                const Gap(16),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    child: Text(
+                      'Forgot Password?',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                      ),
+                    ),
+                    onPressed: () {
+                      context.pushNamed('Forget Password');
+                    },
+                  ),
+                ),
                 BlocConsumer<AuthenticationBloc, AuthenticationState>(
                   bloc: _authenticationBloc,
                   listener: (context, state) {
@@ -99,8 +109,7 @@ class _LoginPageState extends State<LoginPage> {
                         label: const SizedBox(
                           height: 32,
                           width: 32,
-                          child: CircularProgressIndicator(
-                          ),
+                          child: CircularProgressIndicator(),
                         ),
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(250, 50),

@@ -22,3 +22,10 @@ class SignInInitialEvent extends AuthenticationEvent {
 
 // Sign Out
 class SignOutInitialEvent extends AuthenticationEvent {}
+
+// Password Reset
+class PasswordResetInitialEvent extends AuthenticationEvent {
+  final String email;
+
+  PasswordResetInitialEvent(this.email);
+}

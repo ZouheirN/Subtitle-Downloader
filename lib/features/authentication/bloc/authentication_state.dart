@@ -3,8 +3,6 @@ part of 'authentication_bloc.dart';
 @immutable
 sealed class AuthenticationState {}
 
-abstract class AuthenticationActionState extends AuthenticationState {}
-
 final class AuthenticationInitial extends AuthenticationState {}
 
 // Sign Up
@@ -47,3 +45,14 @@ class SignOutErrorState extends AuthenticationState {
 }
 
 class SignOutSuccessfulState extends AuthenticationState {}
+
+// Password Reset
+class PasswordResetLoadingState extends AuthenticationState {}
+
+class PasswordResetErrorState extends AuthenticationState {
+  final String errorMessage;
+
+  PasswordResetErrorState(this.errorMessage);
+}
+
+class PasswordResetSuccessfulState extends AuthenticationState {}

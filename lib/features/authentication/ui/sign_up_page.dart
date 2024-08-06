@@ -4,8 +4,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
 
-import '../repos/auth_service.dart';
-
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
 
@@ -14,7 +12,6 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final _authService = AuthService();
   final _authenticationBloc = AuthenticationBloc();
 
   final TextEditingController _usernameController = TextEditingController();
@@ -85,7 +82,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: _usernameController,
                   decoration: const InputDecoration(
-                    labelText: 'Username',
+                    hintText: 'Username',
                   ),
                   validator: _validateUsername,
                 ),
@@ -93,7 +90,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: _emailController,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    hintText: 'Email',
                   ),
                   validator: _validateEmail,
                 ),
@@ -101,7 +98,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: _passwordController,
                   decoration: const InputDecoration(
-                    labelText: 'Password',
+                    hintText: 'Password',
                   ),
                   obscureText: true,
                   validator: _validatePassword,
@@ -110,7 +107,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 TextFormField(
                   controller: _confirmPasswordController,
                   decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
+                    hintText: 'Confirm Password',
                   ),
                   obscureText: true,
                   validator: _validateConfirmPassword,
