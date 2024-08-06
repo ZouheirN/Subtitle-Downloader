@@ -1,7 +1,9 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
+import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
 import '../repos/auth_service.dart';
 
@@ -14,6 +16,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _authService = AuthService();
+  final _authenticationBloc = AuthenticationBloc();
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -75,9 +78,44 @@ class _LoginPageState extends State<LoginPage> {
                   validator: _validatePassword,
                 ),
                 const Gap(16),
-                ElevatedButton(
-                  onPressed: _signIn,
-                  child: const Text('Login'),
+                BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                  bloc: _authenticationBloc,
+                  listener: (context, state) {
+                    if (state is SignInErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage),
+                        ),
+                      );
+                    } else if (state is SignInSuccessfulState) {
+                      DownloadedSubtitlesBox.clearAllDownloadedSubtitles();
+                      context.pop();
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is SignInLoadingState) {
+                      return ElevatedButton.icon(
+                        onPressed: null,
+                        label: const SizedBox(
+                          height: 32,
+                          width: 32,
+                          child: CircularProgressIndicator(
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(250, 50),
+                        ),
+                      );
+                    }
+
+                    return ElevatedButton(
+                      onPressed: _signIn,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(250, 50),
+                      ),
+                      child: const Text('Login'),
+                    );
+                  },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -90,6 +128,13 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text('Sign Up'),
                     ),
                   ],
+                ),
+                const Gap(16),
+                const Icon(Icons.warning_amber_rounded, color: Colors.red),
+                const Text(
+                  'Logging in will clear your downloaded subtitles history and grab the latest from the server',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.red),
                 ),
               ],
             ),
@@ -104,19 +149,7 @@ class _LoginPageState extends State<LoginPage> {
       String email = _emailController.text.trim();
       String password = _passwordController.text.trim();
 
-      User? user = await _authService.signInWithEmailAndPassword(email, password);
-
-      if (!mounted) return;
-
-      if (user != null) {
-        context.pop();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login failed'),
-          ),
-        );
-      }
+      _authenticationBloc.add(SignInInitialEvent(email, password));
     }
   }
 }

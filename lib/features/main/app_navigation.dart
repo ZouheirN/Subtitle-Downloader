@@ -115,7 +115,7 @@ class AppNavigation {
                 path: '/profile',
                 name: 'Profile',
                 builder: (context, state) {
-                  return const ProfilePage();
+                  return ProfilePage();
                 },
                 routes: [
                   // View Downloaded Subtitles History

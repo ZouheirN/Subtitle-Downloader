@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
 
 import '../repos/auth_service.dart';
 
@@ -14,12 +15,13 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final _authService = AuthService();
+  final _authenticationBloc = AuthenticationBloc();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
-  TextEditingController();
+      TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -114,9 +116,42 @@ class _SignUpPageState extends State<SignUpPage> {
                   validator: _validateConfirmPassword,
                 ),
                 const Gap(16),
-                ElevatedButton(
-                  onPressed: _signUp,
-                  child: const Text('Sign Up'),
+                BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                  bloc: _authenticationBloc,
+                  listener: (context, state) {
+                    if (state is SignUpErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage),
+                        ),
+                      );
+                    } else if (state is SignUpSuccessfulState) {
+                      context.pop();
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is SignUpLoadingState) {
+                      return ElevatedButton.icon(
+                        onPressed: null,
+                        label: const SizedBox(
+                          height: 32,
+                          width: 32,
+                          child: CircularProgressIndicator(),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(250, 50),
+                        ),
+                      );
+                    }
+
+                    return ElevatedButton(
+                      onPressed: _signUp,
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(250, 50),
+                      ),
+                      child: const Text('Sign Up'),
+                    );
+                  },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -144,20 +179,11 @@ class _SignUpPageState extends State<SignUpPage> {
       String email = _emailController.text.trim();
       String password = _passwordController.text.trim();
 
-      User? user = await _authService.signUpWithEmailAndPassword(
-          email, password, username);
-
-      if (!mounted) return;
-
-      if (user != null) {
-        context.pop();
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Sign Up failed'),
-          ),
-        );
-      }
+      _authenticationBloc.add(SignUpInitialEvent(
+        email,
+        password,
+        username,
+      ));
     }
   }
 }

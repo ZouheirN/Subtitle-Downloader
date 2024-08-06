@@ -18,8 +18,8 @@ class DownloadedSubtitlesBox {
 
     if (localOnly) return;
     // sync to firestore
-    FirestoreService().addSubtitleToFirestore(
-        url, releaseName, author, movieName);
+    FirestoreService()
+        .addSubtitleToFirestore(url, releaseName, author, movieName);
   }
 
   static bool isSubtitleDownloaded(String url) {
@@ -56,5 +56,10 @@ class DownloadedSubtitlesBox {
 
     // clear firestore
     FirestoreService().clearAllSubtitlesFromFirestore();
+  }
+
+  static Future<void> deleteDownloadedSubtitle(String url) async {
+    downloadedSubtitlesBox.delete(url);
+    await FirestoreService().deleteSubtitleFromFirestore(url);
   }
 }
