@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
+import 'package:subtitle_downloader/features/authentication/repos/auth_service.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
 import '../../../hive/settings_box.dart';
@@ -105,6 +106,27 @@ class SettingsPage extends StatelessWidget {
                 }
               },
             ),
+            if (FirebaseAuth.instance.currentUser != null)
+              Column(
+                children: [
+                  const Divider(),
+                  ListTile(
+                    title: const Text('Send Password Reset Email'),
+                    leading: const Icon(Icons.password_rounded),
+                    onTap: () async {
+                      await AuthService().sendPasswordResetEmail(
+                          FirebaseAuth.instance.currentUser!.email!);
+
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Password reset email sent'),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
           ],
         ),
       ),

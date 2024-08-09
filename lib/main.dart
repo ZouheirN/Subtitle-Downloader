@@ -25,7 +25,7 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  FirestoreService().listenForUpdates();
+  FirestoreService().startListener();
 
   runApp(const MyApp());
 }

@@ -4,9 +4,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../../hive/downloaded_subtitles_box.dart';
+import '../../../main.dart';
 
 class FirestoreService {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  CollectionReference<Map<String, dynamic>>? listener;
 
   void addSubtitleToFirestore(
       String url, String releaseName, String author, String movieName) {
@@ -69,13 +71,18 @@ class FirestoreService {
         .snapshots();
   }
 
-  void listenForUpdates() {
-    final docRef = firestore
+  void startListener() {
+    if (FirebaseAuth.instance.currentUser == null) return;
+
+    listener = firestore
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .collection('downloadedSubtitles');
-    docRef.snapshots().listen(
+
+    listener?.snapshots().listen(
       (event) {
+        logger.i('Firestore listener triggered\n${event.docs.toString()}');
+
         for (int i = 0; i < event.docChanges.length; i++) {
           final subtitle = event.docChanges[i].doc.data();
           final change = event.docChanges[i].type;
@@ -121,7 +128,13 @@ class FirestoreService {
           }
         }
       },
-      onError: (error) => print("Listen failed: $error"),
+      onError: (error) => logger.e("Listen failed: $error"),
     );
+  }
+
+  void cancelListener() {
+    if (FirebaseAuth.instance.currentUser == null) return;
+
+    listener?.snapshots().listen((event) {}).cancel();
   }
 }

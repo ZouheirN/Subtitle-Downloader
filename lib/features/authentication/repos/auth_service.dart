@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
 import 'package:subtitle_downloader/main.dart';
 
 class AuthService {
@@ -16,6 +17,9 @@ class AuthService {
       // update the user's display name and trigger auth state changes
       await userCredential.user!.updateDisplayName(username);
 
+      // start the listener
+      FirestoreService().startListener();
+
       return userCredential.user;
     } catch (e) {
       logger.e(e);
@@ -32,6 +36,9 @@ class AuthService {
         password: password,
       );
 
+      // start the listener
+      FirestoreService().startListener();
+
       return userCredential.user;
     } catch (e) {
       logger.e(e);
@@ -44,6 +51,9 @@ class AuthService {
     try {
       final User? firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
+        // cancel the listener
+        FirestoreService().cancelListener();
+
         await FirebaseAuth.instance.signOut();
       }
     } catch (e) {
