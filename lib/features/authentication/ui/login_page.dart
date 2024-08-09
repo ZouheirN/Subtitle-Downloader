@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
@@ -80,7 +81,9 @@ class _LoginPageState extends State<LoginPage> {
                     child: Text(
                       'Forgot Password?',
                       style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                        color: Theme
+                            .of(context)
+                            .primaryColor,
                       ),
                     ),
                     onPressed: () {
@@ -141,6 +144,35 @@ class _LoginPageState extends State<LoginPage> {
                   ],
                 ),
                 const Gap(16),
+                BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                  bloc: _authenticationBloc,
+                  listener: (context, state) {
+                    if (state is SignInWithGoogleErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage),
+                        ),
+                      );
+                    } else if (state is SignInWithGoogleSuccessfulState) {
+                      DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
+                        localOnly: true,
+                      );
+                      context.pop();
+                    }
+                  },
+                  builder: (context, state) {
+                    return SignInButton(
+                      Buttons.google,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      onPressed: () {
+                        _authenticationBloc.add(SignInWithGoogleInitialEvent());
+                      },
+                    );
+                  },
+                ),
+                const Gap(32),
                 const Icon(Icons.warning_amber_rounded, color: Colors.red),
                 const Text(
                   'Logging in will clear your downloaded subtitles history and grab the latest from the server',

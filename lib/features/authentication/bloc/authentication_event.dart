@@ -20,6 +20,9 @@ class SignInInitialEvent extends AuthenticationEvent {
   SignInInitialEvent(this.email, this.password);
 }
 
+// Sign In With Google
+class SignInWithGoogleInitialEvent extends AuthenticationEvent {}
+
 // Sign Out
 class SignOutInitialEvent extends AuthenticationEvent {}
 

@@ -35,6 +35,21 @@ class SignInSuccessfulState extends AuthenticationState {
   SignInSuccessfulState(this.user);
 }
 
+// Sign In With Google
+class SignInWithGoogleLoadingState extends AuthenticationState {}
+
+class SignInWithGoogleErrorState extends AuthenticationState {
+  final String errorMessage;
+
+  SignInWithGoogleErrorState(this.errorMessage);
+}
+
+class SignInWithGoogleSuccessfulState extends AuthenticationState {
+  final User user;
+
+  SignInWithGoogleSuccessfulState(this.user);
+}
+
 // Sign Out
 class SignOutLoadingState extends AuthenticationState {}
 

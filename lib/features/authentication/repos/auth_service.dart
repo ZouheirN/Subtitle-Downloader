@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
 import 'package:subtitle_downloader/main.dart';
 
@@ -40,6 +41,25 @@ class AuthService {
       FirestoreService().startListener();
 
       return userCredential.user;
+    } catch (e) {
+      logger.e(e);
+    }
+
+    return null;
+  }
+
+  Future<UserCredential?> signInWithGoogle() async {
+    try {
+      final googleUser = await GoogleSignIn().signIn();
+
+      final googleAuth = await googleUser?.authentication;
+
+      final cred = GoogleAuthProvider.credential(
+        accessToken: googleAuth?.accessToken,
+        idToken: googleAuth?.idToken,
+      );
+
+      return await _auth.signInWithCredential(cred);
     } catch (e) {
       logger.e(e);
     }

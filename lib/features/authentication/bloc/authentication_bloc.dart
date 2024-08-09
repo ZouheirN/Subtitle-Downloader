@@ -15,6 +15,7 @@ class AuthenticationBloc
     on<SignInInitialEvent>(signInInitialEvent);
     on<SignOutInitialEvent>(signOutInitialEvent);
     on<PasswordResetInitialEvent>(passwordResetInitialEvent);
+    on<SignInWithGoogleInitialEvent>(signInWithGoogleInitialEvent);
   }
 
   Future<FutureOr<void>> signUpInitialEvent(
@@ -77,5 +78,20 @@ class AuthenticationBloc
     }
 
     emit(PasswordResetSuccessfulState());
+  }
+
+  Future<FutureOr<void>> signInWithGoogleInitialEvent(
+      SignInWithGoogleInitialEvent event,
+      Emitter<AuthenticationState> emit) async {
+    emit(SignInWithGoogleLoadingState());
+
+    final userCred = await AuthService().signInWithGoogle();
+
+    if (userCred != null) {
+      emit(SignInWithGoogleSuccessfulState(userCred.user!));
+    } else {
+      emit(SignInWithGoogleErrorState(
+          'Error signing in with Google. Please try again.'));
+    }
   }
 }
