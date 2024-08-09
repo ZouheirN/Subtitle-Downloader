@@ -98,7 +98,9 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       );
                     } else if (state is SignInSuccessfulState) {
-                      DownloadedSubtitlesBox.clearAllDownloadedSubtitles();
+                      DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
+                        localOnly: true,
+                      );
                       context.pop();
                     }
                   },

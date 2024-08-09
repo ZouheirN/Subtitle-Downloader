@@ -51,8 +51,10 @@ class DownloadedSubtitlesBox {
     return downloadedSubtitles;
   }
 
-  static void clearAllDownloadedSubtitles() {
+  static void clearAllDownloadedSubtitles({required bool localOnly}) {
     downloadedSubtitlesBox.clear();
+
+    if (localOnly) return;
 
     // clear firestore
     FirestoreService().clearAllSubtitlesFromFirestore();

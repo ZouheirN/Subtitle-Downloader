@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
@@ -50,7 +51,58 @@ class SettingsPage extends StatelessWidget {
               title: const Text('Clear Downloaded Subtitles History'),
               leading: const Icon(Icons.history_rounded),
               onTap: () {
-                DownloadedSubtitlesBox.clearAllDownloadedSubtitles();
+                if (FirebaseAuth.instance.currentUser == null) {
+                  DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
+                      localOnly: true);
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Clear Downloaded Subtitles History'),
+                        content: const Text(
+                            'Do you also want to remove the downloaded subtitles from the cloud?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                            },
+                            child: const Text('Cancel'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              DownloadedSubtitlesBox
+                                  .clearAllDownloadedSubtitles(
+                                      localOnly: false);
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Downloaded Subtitles History Cleared'),
+                                ),
+                              );
+                            },
+                            child: const Text('Yes'),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              DownloadedSubtitlesBox
+                                  .clearAllDownloadedSubtitles(localOnly: true);
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                      'Downloaded Subtitles History Cleared'),
+                                ),
+                              );
+                            },
+                            child: const Text('Local Only'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
               },
             ),
           ],

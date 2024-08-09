@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
+import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
 import 'package:subtitle_downloader/hive/settings_box.dart';
 
 import 'features/main/app_navigation.dart';
@@ -23,6 +24,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirestoreService().listenForUpdates();
 
   runApp(const MyApp());
 }

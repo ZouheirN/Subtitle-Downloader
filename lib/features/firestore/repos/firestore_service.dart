@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:subtitle_downloader/main.dart';
+
+import '../../../hive/downloaded_subtitles_box.dart';
 
 class FirestoreService {
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -64,5 +67,61 @@ class FirestoreService {
         .doc(uid)
         .collection('downloadedSubtitles')
         .snapshots();
+  }
+
+  void listenForUpdates() {
+    final docRef = firestore
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('downloadedSubtitles');
+    docRef.snapshots().listen(
+      (event) {
+        for (int i = 0; i < event.docChanges.length; i++) {
+          final subtitle = event.docChanges[i].doc.data();
+          final change = event.docChanges[i].type;
+
+          switch (change) {
+            case DocumentChangeType.added:
+              // check if subtitle is in local data
+              // if not, add it
+              DownloadedSubtitlesBox.isSubtitleDownloaded(subtitle?['url'])
+                  ? null
+                  : DownloadedSubtitlesBox.addDownloadedSubtitle(
+                      subtitle?['url'],
+                      subtitle?['releaseName'],
+                      subtitle?['author'],
+                      subtitle?['movieName'],
+                      localOnly: true,
+                    );
+              break;
+            case DocumentChangeType.modified:
+              // check if subtitle is in local data
+              // if not, remove then add it
+              DownloadedSubtitlesBox.isSubtitleDownloaded(subtitle?['url'])
+                  ? null
+                  : DownloadedSubtitlesBox.deleteDownloadedSubtitle(
+                      subtitle?['url']);
+
+              DownloadedSubtitlesBox.addDownloadedSubtitle(
+                subtitle?['url'],
+                subtitle?['releaseName'],
+                subtitle?['author'],
+                subtitle?['movieName'],
+                localOnly: true,
+              );
+              break;
+            case DocumentChangeType.removed:
+              // check if subtitle is in local data
+              // if not, remove it
+              DownloadedSubtitlesBox.isSubtitleDownloaded(subtitle?['url'])
+                  ? null
+                  : DownloadedSubtitlesBox.deleteDownloadedSubtitle(
+                      subtitle?['url']);
+              break;
+          }
+        }
+      },
+      onError: (error) => print("Listen failed: $error"),
+    );
   }
 }
