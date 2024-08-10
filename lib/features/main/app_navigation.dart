@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/authentication/ui/forget_password_page.dart';
 import 'package:subtitle_downloader/features/authentication/ui/sign_up_page.dart';
+import 'package:subtitle_downloader/features/authentication/ui/verification_page.dart';
 import 'package:subtitle_downloader/features/main/ui/main_page.dart';
 import 'package:subtitle_downloader/features/movies/ui/home_movies_page.dart';
 import 'package:subtitle_downloader/features/profile/ui/profile_page.dart';
@@ -164,6 +165,15 @@ class AppNavigation {
                     parentNavigatorKey: _rootNavigatorKey,
                     builder: (context, state) {
                       return const SignUpPage();
+                    },
+                  ),
+                  // Email Verification
+                  GoRoute(
+                    path: 'verification',
+                    name: 'Verification',
+                    parentNavigatorKey: _rootNavigatorKey,
+                    builder: (context, state) {
+                      return const VerificationPage();
                     },
                   ),
                 ],

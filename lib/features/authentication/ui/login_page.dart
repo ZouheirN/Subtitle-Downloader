@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
+import 'package:subtitle_downloader/main.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -105,6 +106,8 @@ class _LoginPageState extends State<LoginPage> {
                         localOnly: true,
                       );
                       context.pop();
+                    } else if (state is EmailNotVerified) {
+                      context.pushNamed('Verification');
                     }
                   },
                   builder: (context, state) {
@@ -175,7 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                 const Gap(32),
                 const Icon(Icons.warning_amber_rounded, color: Colors.red),
                 const Text(
-                  'Logging in will clear your downloaded subtitles history and grab the latest from the server',
+                  'Logging in will clear your downloaded subtitles history and grab the latest from the cloud',
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.red),
                 ),

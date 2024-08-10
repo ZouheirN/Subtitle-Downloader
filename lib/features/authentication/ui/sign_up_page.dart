@@ -124,6 +124,8 @@ class _SignUpPageState extends State<SignUpPage> {
                       );
                     } else if (state is SignUpSuccessfulState) {
                       context.pop();
+                    } else if (state is EmailNotVerified) {
+                      context.pushNamed('Verification');
                     }
                   },
                   builder: (context, state) {

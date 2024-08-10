@@ -37,6 +37,11 @@ class AuthService {
         password: password,
       );
 
+      // check if email is verified
+      // if (!userCredential.user!.emailVerified) {
+      //   return null;
+      // }
+
       // start the listener
       FirestoreService().startListener();
 
@@ -46,6 +51,18 @@ class AuthService {
     }
 
     return null;
+  }
+
+  Future<void> sendEmailVerification() async {
+    try {
+      User? user = _auth.currentUser;
+
+      if (user != null && !user.emailVerified) {
+        await user.sendEmailVerification();
+      }
+    } catch (e) {
+      logger.e(e);
+    }
   }
 
   Future<UserCredential?> signInWithGoogle() async {

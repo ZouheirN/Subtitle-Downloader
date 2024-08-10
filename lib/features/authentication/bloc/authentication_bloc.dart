@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/authentication/repos/auth_service.dart';
+import 'package:subtitle_downloader/main.dart';
 
 part 'authentication_event.dart';
 part 'authentication_state.dart';
@@ -30,6 +31,8 @@ class AuthenticationBloc
 
     if (user == null) {
       emit(SignUpErrorState('Error signing up. Please try again.'));
+    } else if (user.emailVerified == false) {
+      emit(EmailNotVerified());
     } else {
       emit(SignUpSuccessfulState(user));
     }
@@ -46,6 +49,8 @@ class AuthenticationBloc
 
     if (user == null) {
       emit(SignInErrorState('Error signing up. Please try again.'));
+    } else if (user.emailVerified == false) {
+      emit(EmailNotVerified());
     } else {
       emit(SignInSuccessfulState(user));
     }

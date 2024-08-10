@@ -35,6 +35,9 @@ class SignInSuccessfulState extends AuthenticationState {
   SignInSuccessfulState(this.user);
 }
 
+// Email Verification
+class EmailNotVerified extends AuthenticationState {}
+
 // Sign In With Google
 class SignInWithGoogleLoadingState extends AuthenticationState {}
 
