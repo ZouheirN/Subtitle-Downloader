@@ -1,5 +1,6 @@
 import 'package:hive/hive.dart';
 import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
+import 'package:subtitle_downloader/main.dart';
 
 class DownloadedSubtitlesBox {
   static Box downloadedSubtitlesBox = Hive.box('downloadedSubtitlesBox');
@@ -23,6 +24,7 @@ class DownloadedSubtitlesBox {
   }
 
   static bool isSubtitleDownloaded(String url) {
+    logger.e(downloadedSubtitlesBox.containsKey(url));
     return downloadedSubtitlesBox.containsKey(url);
   }
 
@@ -60,8 +62,11 @@ class DownloadedSubtitlesBox {
     FirestoreService().clearAllSubtitlesFromFirestore();
   }
 
-  static Future<void> deleteDownloadedSubtitle(String url) async {
+  static Future<void> deleteDownloadedSubtitle(String url, bool localOnly) async {
     downloadedSubtitlesBox.delete(url);
+
+    if (localOnly) return;
+
     await FirestoreService().deleteSubtitleFromFirestore(url);
   }
 }

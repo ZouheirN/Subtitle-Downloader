@@ -57,132 +57,134 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                  ),
-                  validator: _validateEmail,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    hintText: 'Password',
-                  ),
-                  obscureText: true,
-                  validator: _validatePassword,
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(
-                        color: Theme
-                            .of(context)
-                            .primaryColor,
-                      ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
                     ),
-                    onPressed: () {
-                      context.pushNamed('Forget Password');
-                    },
+                    validator: _validateEmail,
                   ),
-                ),
-                BlocConsumer<AuthenticationBloc, AuthenticationState>(
-                  bloc: _authenticationBloc,
-                  listener: (context, state) {
-                    if (state is SignInErrorState) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.errorMessage),
+                  const Gap(8),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      hintText: 'Password',
+                    ),
+                    obscureText: true,
+                    validator: _validatePassword,
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          color: Theme
+                              .of(context)
+                              .primaryColor,
                         ),
-                      );
-                    } else if (state is SignInSuccessfulState) {
-                      DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
-                        localOnly: true,
-                      );
-                      context.pop();
-                    } else if (state is EmailNotVerified) {
-                      context.pushNamed('Verification');
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is SignInLoadingState) {
-                      return ElevatedButton.icon(
-                        onPressed: null,
-                        label: const SizedBox(
-                          height: 32,
-                          width: 32,
-                          child: CircularProgressIndicator(),
-                        ),
+                      ),
+                      onPressed: () {
+                        context.pushNamed('Forget Password');
+                      },
+                    ),
+                  ),
+                  BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                    bloc: _authenticationBloc,
+                    listener: (context, state) {
+                      if (state is SignInErrorState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.errorMessage),
+                          ),
+                        );
+                      } else if (state is SignInSuccessfulState) {
+                        DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
+                          localOnly: true,
+                        );
+                        context.pop();
+                      } else if (state is EmailNotVerified) {
+                        context.pushNamed('Verification');
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is SignInLoadingState) {
+                        return ElevatedButton.icon(
+                          onPressed: null,
+                          label: const SizedBox(
+                            height: 32,
+                            width: 32,
+                            child: CircularProgressIndicator(),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(250, 50),
+                          ),
+                        );
+                      }
+              
+                      return ElevatedButton(
+                        onPressed: _signIn,
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(250, 50),
                         ),
+                        child: const Text('Login'),
                       );
-                    }
-
-                    return ElevatedButton(
-                      onPressed: _signIn,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(250, 50),
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Don\'t have an account?'),
+                      TextButton(
+                        onPressed: () {
+                          context.pushReplacementNamed('Sign Up');
+                        },
+                        child: const Text('Sign Up'),
                       ),
-                      child: const Text('Login'),
-                    );
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Don\'t have an account?'),
-                    TextButton(
-                      onPressed: () {
-                        context.pushReplacementNamed('Sign Up');
-                      },
-                      child: const Text('Sign Up'),
-                    ),
-                  ],
-                ),
-                const Gap(16),
-                BlocConsumer<AuthenticationBloc, AuthenticationState>(
-                  bloc: _authenticationBloc,
-                  listener: (context, state) {
-                    if (state is SignInWithGoogleErrorState) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.errorMessage),
+                    ],
+                  ),
+                  const Gap(16),
+                  BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                    bloc: _authenticationBloc,
+                    listener: (context, state) {
+                      if (state is SignInWithGoogleErrorState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.errorMessage),
+                          ),
+                        );
+                      } else if (state is SignInWithGoogleSuccessfulState) {
+                        DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
+                          localOnly: true,
+                        );
+                        context.pop();
+                      }
+                    },
+                    builder: (context, state) {
+                      return SignInButton(
+                        Buttons.google,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
+                        onPressed: () {
+                          _authenticationBloc.add(SignInWithGoogleInitialEvent());
+                        },
                       );
-                    } else if (state is SignInWithGoogleSuccessfulState) {
-                      DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
-                        localOnly: true,
-                      );
-                      context.pop();
-                    }
-                  },
-                  builder: (context, state) {
-                    return SignInButton(
-                      Buttons.google,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      onPressed: () {
-                        _authenticationBloc.add(SignInWithGoogleInitialEvent());
-                      },
-                    );
-                  },
-                ),
-                const Gap(32),
-                const Icon(Icons.warning_amber_rounded, color: Colors.red),
-                const Text(
-                  'Logging in will clear your downloaded subtitles history and grab the latest from the cloud',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.red),
-                ),
-              ],
+                    },
+                  ),
+                  const Gap(32),
+                  const Icon(Icons.warning_amber_rounded, color: Colors.red),
+                  const Text(
+                    'Logging in will clear your downloaded subtitles history and grab the latest from the cloud',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

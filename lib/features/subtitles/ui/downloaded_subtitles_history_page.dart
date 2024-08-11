@@ -3,8 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
-import '../../firestore/repos/firestore_service.dart';
-
 class DownloadedSubtitlesHistoryPage extends StatefulWidget {
   const DownloadedSubtitlesHistoryPage({super.key});
 
@@ -35,7 +33,7 @@ class _DownloadedSubtitlesHistoryPageState
                 key: Key(movieNames[index]),
                 onDismissed: (direction) async {
                   await DownloadedSubtitlesBox.deleteDownloadedSubtitle(
-                      subtitles[index].values.first.first['url']);
+                      subtitles[index].values.first.first['url'], false);
 
                   final removedMovieName = movieNames[index];
 

@@ -87,27 +87,31 @@ class FirestoreService {
           final subtitle = event.docChanges[i].doc.data();
           final change = event.docChanges[i].type;
 
+          logger.i(change);
+
           switch (change) {
             case DocumentChangeType.added:
               // check if subtitle is in local data
               // if not, add it
-              DownloadedSubtitlesBox.isSubtitleDownloaded(subtitle?['url'])
-                  ? null
-                  : DownloadedSubtitlesBox.addDownloadedSubtitle(
-                      subtitle?['url'],
-                      subtitle?['releaseName'],
-                      subtitle?['author'],
-                      subtitle?['movieName'],
-                      localOnly: true,
-                    );
+              if (!DownloadedSubtitlesBox.isSubtitleDownloaded(
+                  subtitle?['url'])) {
+                DownloadedSubtitlesBox.addDownloadedSubtitle(
+                  subtitle?['url'],
+                  subtitle?['releaseName'],
+                  subtitle?['author'],
+                  subtitle?['movieName'],
+                  localOnly: true,
+                );
+              }
               break;
             case DocumentChangeType.modified:
               // check if subtitle is in local data
               // if not, remove then add it
-              DownloadedSubtitlesBox.isSubtitleDownloaded(subtitle?['url'])
-                  ? null
-                  : DownloadedSubtitlesBox.deleteDownloadedSubtitle(
-                      subtitle?['url']);
+              if (DownloadedSubtitlesBox.isSubtitleDownloaded(
+                  subtitle?['url'])) {
+                DownloadedSubtitlesBox.deleteDownloadedSubtitle(
+                    subtitle?['url'], true);
+              }
 
               DownloadedSubtitlesBox.addDownloadedSubtitle(
                 subtitle?['url'],
@@ -120,10 +124,11 @@ class FirestoreService {
             case DocumentChangeType.removed:
               // check if subtitle is in local data
               // if not, remove it
-              DownloadedSubtitlesBox.isSubtitleDownloaded(subtitle?['url'])
-                  ? null
-                  : DownloadedSubtitlesBox.deleteDownloadedSubtitle(
-                      subtitle?['url']);
+              if (DownloadedSubtitlesBox.isSubtitleDownloaded(
+                  subtitle?['url'])) {
+                DownloadedSubtitlesBox.deleteDownloadedSubtitle(
+                    subtitle?['url'], true);
+              }
               break;
           }
         }

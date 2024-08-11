@@ -76,95 +76,97 @@ class _SignUpPageState extends State<SignUpPage> {
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Username',
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextFormField(
+                    controller: _usernameController,
+                    decoration: const InputDecoration(
+                      hintText: 'Username',
+                    ),
+                    validator: _validateUsername,
                   ),
-                  validator: _validateUsername,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    hintText: 'Email',
+                  const Gap(8),
+                  TextFormField(
+                    controller: _emailController,
+                    decoration: const InputDecoration(
+                      hintText: 'Email',
+                    ),
+                    validator: _validateEmail,
                   ),
-                  validator: _validateEmail,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    hintText: 'Password',
+                  const Gap(8),
+                  TextFormField(
+                    controller: _passwordController,
+                    decoration: const InputDecoration(
+                      hintText: 'Password',
+                    ),
+                    obscureText: true,
+                    validator: _validatePassword,
                   ),
-                  obscureText: true,
-                  validator: _validatePassword,
-                ),
-                const Gap(8),
-                TextFormField(
-                  controller: _confirmPasswordController,
-                  decoration: const InputDecoration(
-                    hintText: 'Confirm Password',
+                  const Gap(8),
+                  TextFormField(
+                    controller: _confirmPasswordController,
+                    decoration: const InputDecoration(
+                      hintText: 'Confirm Password',
+                    ),
+                    obscureText: true,
+                    validator: _validateConfirmPassword,
                   ),
-                  obscureText: true,
-                  validator: _validateConfirmPassword,
-                ),
-                const Gap(16),
-                BlocConsumer<AuthenticationBloc, AuthenticationState>(
-                  bloc: _authenticationBloc,
-                  listener: (context, state) {
-                    if (state is SignUpErrorState) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(state.errorMessage),
-                        ),
-                      );
-                    } else if (state is SignUpSuccessfulState) {
-                      context.pop();
-                    } else if (state is EmailNotVerified) {
-                      context.pushNamed('Verification');
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is SignUpLoadingState) {
-                      return ElevatedButton.icon(
-                        onPressed: null,
-                        label: const SizedBox(
-                          height: 32,
-                          width: 32,
-                          child: CircularProgressIndicator(),
-                        ),
+                  const Gap(16),
+                  BlocConsumer<AuthenticationBloc, AuthenticationState>(
+                    bloc: _authenticationBloc,
+                    listener: (context, state) {
+                      if (state is SignUpErrorState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.errorMessage),
+                          ),
+                        );
+                      } else if (state is SignUpSuccessfulState) {
+                        context.pop();
+                      } else if (state is EmailNotVerified) {
+                        context.pushNamed('Verification');
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is SignUpLoadingState) {
+                        return ElevatedButton.icon(
+                          onPressed: null,
+                          label: const SizedBox(
+                            height: 32,
+                            width: 32,
+                            child: CircularProgressIndicator(),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            minimumSize: const Size(250, 50),
+                          ),
+                        );
+                      }
+              
+                      return ElevatedButton(
+                        onPressed: _signUp,
                         style: ElevatedButton.styleFrom(
                           minimumSize: const Size(250, 50),
                         ),
+                        child: const Text('Sign Up'),
                       );
-                    }
-
-                    return ElevatedButton(
-                      onPressed: _signUp,
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size(250, 50),
+                    },
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text('Already have an account?'),
+                      TextButton(
+                        onPressed: () {
+                          context.pushReplacementNamed('Login');
+                        },
+                        child: const Text('Login'),
                       ),
-                      child: const Text('Sign Up'),
-                    );
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Already have an account?'),
-                    TextButton(
-                      onPressed: () {
-                        context.pushReplacementNamed('Login');
-                      },
-                      child: const Text('Login'),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
