@@ -4,7 +4,6 @@ import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/authentication/repos/auth_service.dart';
-import 'package:subtitle_downloader/main.dart';
 
 part 'authentication_event.dart';
 part 'authentication_state.dart';
@@ -23,37 +22,45 @@ class AuthenticationBloc
       SignUpInitialEvent event, Emitter<AuthenticationState> emit) async {
     emit(SignUpLoadingState());
 
-    User? user = await AuthService().signUpWithEmailAndPassword(
+    final user = await AuthService().signUpWithEmailAndPassword(
       event.email,
       event.password,
       event.username,
     );
 
-    if (user == null) {
-      emit(SignUpErrorState('Error signing up. Please try again.'));
-    } else if (user.emailVerified == false) {
-      emit(EmailNotVerified());
-    } else {
-      emit(SignUpSuccessfulState(user));
-    }
+    user.fold((l) {
+      emit(SignUpErrorState(l.message));
+    }, (r) {
+      if (r == null) {
+        emit(SignUpErrorState('Error signing up. Please try again.'));
+      } else if (r.emailVerified == false) {
+        emit(EmailNotVerified());
+      } else {
+        emit(SignUpSuccessfulState(r));
+      }
+    });
   }
 
   Future<FutureOr<void>> signInInitialEvent(
       SignInInitialEvent event, Emitter<AuthenticationState> emit) async {
     emit(SignInLoadingState());
 
-    User? user = await AuthService().signInWithEmailAndPassword(
+    final user = await AuthService().signInWithEmailAndPassword(
       event.email,
       event.password,
     );
 
-    if (user == null) {
-      emit(SignInErrorState('Error signing up. Please try again.'));
-    } else if (user.emailVerified == false) {
-      emit(EmailNotVerified());
-    } else {
-      emit(SignInSuccessfulState(user));
-    }
+    user.fold((l) {
+      emit(SignInErrorState(l.message));
+    }, (r) {
+      if (r == null) {
+        emit(SignInErrorState('Error signing in. Please try again.'));
+      } else if (r.emailVerified == false) {
+        emit(EmailNotVerified());
+      } else {
+        emit(SignInSuccessfulState(r));
+      }
+    });
   }
 
   Future<FutureOr<void>> signOutInitialEvent(
