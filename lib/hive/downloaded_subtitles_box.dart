@@ -24,7 +24,6 @@ class DownloadedSubtitlesBox {
   }
 
   static bool isSubtitleDownloaded(String url) {
-    logger.e(downloadedSubtitlesBox.containsKey(url));
     return downloadedSubtitlesBox.containsKey(url);
   }
 
