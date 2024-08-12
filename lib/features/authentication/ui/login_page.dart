@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
-import 'package:subtitle_downloader/main.dart';
+
+import '../../profile/bloc/profile_bloc.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -83,9 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         'Forgot Password?',
                         style: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .primaryColor,
+                          color: Theme.of(context).primaryColor,
                         ),
                       ),
                       onPressed: () {
@@ -103,6 +102,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       } else if (state is SignInSuccessfulState) {
+                        context
+                            .read<ProfileBloc>()
+                            .add(GetProfilePictureEvent());
                         DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
                           localOnly: true,
                         );
@@ -125,7 +127,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       }
-              
+
                       return ElevatedButton(
                         onPressed: _signIn,
                         style: ElevatedButton.styleFrom(
@@ -158,6 +160,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       } else if (state is SignInWithGoogleSuccessfulState) {
+                        context
+                            .read<ProfileBloc>()
+                            .add(GetProfilePictureEvent());
                         DownloadedSubtitlesBox.clearAllDownloadedSubtitles(
                           localOnly: true,
                         );
@@ -171,7 +176,8 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                         onPressed: () {
-                          _authenticationBloc.add(SignInWithGoogleInitialEvent());
+                          _authenticationBloc
+                              .add(SignInWithGoogleInitialEvent());
                         },
                       );
                     },

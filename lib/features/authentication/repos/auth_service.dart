@@ -1,7 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
+import 'package:subtitle_downloader/features/profile/bloc/profile_bloc.dart';
 import 'package:subtitle_downloader/main.dart';
 
 class RepositoryError {
@@ -126,6 +128,8 @@ class AuthService {
       if (firebaseUser != null) {
         // cancel the listener
         FirestoreService().cancelListener();
+
+        // return profile picture to null
 
         await FirebaseAuth.instance.signOut();
       }

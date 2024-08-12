@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/components/language_dropdown.dart';
 import 'package:subtitle_downloader/features/authentication/repos/auth_service.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
 
 import '../../../hive/settings_box.dart';
+import '../bloc/profile_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -122,6 +124,91 @@ class SettingsPage extends StatelessWidget {
                         const SnackBar(
                           content: Text('Password reset email sent'),
                         ),
+                      );
+                    },
+                  ),
+                  BlocConsumer<ProfileBloc, ProfileState>(
+                    listener: (context, state) {
+                      if (state is DeleteAccountSuccessfulState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Account successfully deleted'),
+                          ),
+                        );
+                        context.read<AuthService>().signOut();
+                        Navigator.of(context).pop();
+                      } else if (state is DeleteAccountErrorState) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.errorMessage),
+                          ),
+                        );
+                      }
+                    },
+                    builder: (context, state) {
+                      if (state is DeleteAccountLoadingState) {
+                        return const ListTile(
+                          title: Text(
+                            'Deleting Account...',
+                            style: TextStyle(
+                              color: Colors.red,
+                            ),
+                          ),
+                          leading: CircularProgressIndicator(
+                            color: Colors.red,
+                          ),
+                        );
+                      }
+
+                      return ListTile(
+                        title: const Text(
+                          'Delete Account',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                        leading: const Icon(
+                          Icons.delete_forever_rounded,
+                          color: Colors.red,
+                        ),
+                        onTap: () async {
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: const Text('Delete your Account?'),
+                                content: const Text(
+                                    '''If you select Delete we will delete your account on our server.
+
+Your app data will also be deleted and you won't be able to retrieve it.
+
+Since this is a security-sensitive operation, you may be asked to login before your account can be deleted.'''),
+                                actions: [
+                                  TextButton(
+                                    child: const Text('Cancel'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                  TextButton(
+                                    child: const Text(
+                                      'Delete',
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      context
+                                          .read<ProfileBloc>()
+                                          .add(DeleteAccountEvent(context));
+                                      Navigator.of(context).pop();
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
                       );
                     },
                   ),

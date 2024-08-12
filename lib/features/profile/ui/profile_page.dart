@@ -57,18 +57,21 @@ class _ProfilePageState extends State<ProfilePage> {
                   builder: (context, state) {
                     if (state is ChangeProfilePictureLoadingState) {
                       return const ProfilePicture(isLoading: true);
-                    }
-                    if (state is ChangeProfilePictureSuccessfulState) {
+                    } else if (state is ChangeProfilePictureSuccessfulState) {
                       return GestureDetector(
                         onTap: () {
-                          context.read<ProfileBloc>().add(ChangeProfilePictureEvent());
+                          context
+                              .read<ProfileBloc>()
+                              .add(ChangeProfilePictureEvent());
                         },
                         child: ProfilePicture(pickedImage: state.imageBytes),
                       );
                     } else if (state is GetProfilePictureSuccessfulState) {
                       return GestureDetector(
                         onTap: () {
-                          context.read<ProfileBloc>().add(ChangeProfilePictureEvent());
+                          context
+                              .read<ProfileBloc>()
+                              .add(ChangeProfilePictureEvent());
                         },
                         child: ProfilePicture(pickedImage: state.imageBytes),
                       );
@@ -76,7 +79,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
                     return GestureDetector(
                       onTap: () {
-                        context.read<ProfileBloc>().add(ChangeProfilePictureEvent());
+                        context
+                            .read<ProfileBloc>()
+                            .add(ChangeProfilePictureEvent());
                       },
                       child: const ProfilePicture(),
                     );
@@ -122,6 +127,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         leading: const Icon(Icons.logout_rounded),
                         onTap: () {
                           _authenticationBloc.add(SignOutInitialEvent());
+
+                          // Clear the profile picture
+                          context
+                              .read<ProfileBloc>()
+                              .add(ClearProfilePictureEvent());
                         },
                       );
                     }

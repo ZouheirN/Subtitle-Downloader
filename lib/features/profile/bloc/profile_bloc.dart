@@ -2,11 +2,11 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:meta/meta.dart';
-import 'package:subtitle_downloader/main.dart';
+import 'package:subtitle_downloader/features/profile/repos/profile_repo.dart';
 
 part 'profile_event.dart';
 part 'profile_state.dart';
@@ -15,12 +15,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc() : super(ProfileInitial()) {
     on<ChangeProfilePictureEvent>(changeProfilePictureEvent);
     on<GetProfilePictureEvent>(getProfilePictureEvent);
+    on<DeleteAccountEvent>(deleteAccountEvent);
+    on<ClearProfilePictureEvent>((event, emit) {
+      emit(ClearProfilePictureState());
+    });
   }
 
   Future<void> changeProfilePictureEvent(
       ChangeProfilePictureEvent event, Emitter<ProfileState> emit) async {
     if (FirebaseAuth.instance.currentUser == null) {
-      emit(ChangeProfilePictureErrorState('User not logged in.'));
+      emit(ChangeProfilePictureErrorState('You are not logged in'));
       return;
     }
 
@@ -31,16 +35,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     emit(ChangeProfilePictureLoadingState());
 
-    final storageRef = FirebaseStorage.instance.ref();
-    final imageRef = storageRef.child(
-        'profile_pictures/${FirebaseAuth.instance.currentUser?.uid}.jpg');
+    final imageBytes = await ProfileRepo().changeProfilePicture(image);
 
-    try {
-      final imageBytes = await image.readAsBytes();
-      await imageRef.putData(imageBytes);
+    if (imageBytes == null) {
+      emit(ChangeProfilePictureErrorState('Failed to change profile picture'));
+    } else {
       emit(ChangeProfilePictureSuccessfulState(imageBytes));
-    } catch (e) {
-      emit(ChangeProfilePictureErrorState(e.toString()));
     }
   }
 
@@ -48,19 +48,25 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       GetProfilePictureEvent event, Emitter<ProfileState> emit) async {
     if (FirebaseAuth.instance.currentUser == null) return;
 
-    final storageRef = FirebaseStorage.instance.ref();
+    final imageBytes = await ProfileRepo().getProfilePicture();
 
-    try {
-      final imageRef = storageRef.child(
-          'profile_pictures/${FirebaseAuth.instance.currentUser?.uid}.jpg');
+    emit(GetProfilePictureSuccessfulState(imageBytes));
+  }
 
-      final imageBytes = await imageRef.getData();
-
-      if (imageBytes == null) return;
-
-      emit(GetProfilePictureSuccessfulState(imageBytes));
-    } catch (e) {
-      logger.e(e.toString());
+  FutureOr<void> deleteAccountEvent(
+      DeleteAccountEvent event, Emitter<ProfileState> emit) async {
+    if (FirebaseAuth.instance.currentUser == null) {
+      emit(DeleteAccountErrorState('You are not logged in'));
+      return;
     }
+
+    emit(DeleteAccountLoadingState());
+
+    final result = await ProfileRepo().deleteAccount(event.context);
+
+    result.fold(
+      (l) => emit(DeleteAccountErrorState(l.message)),
+      (r) => emit(DeleteAccountSuccessfulState()),
+    );
   }
 }
