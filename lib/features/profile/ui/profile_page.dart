@@ -3,12 +3,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtitle_downloader/components/profile_picture.dart';
 import 'package:subtitle_downloader/features/authentication/bloc/authentication_bloc.dart';
+import 'package:subtitle_downloader/features/profile/bloc/profile_bloc.dart';
 
-class ProfilePage extends StatelessWidget {
-  ProfilePage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
   final _authenticationBloc = AuthenticationBloc();
+
+  @override
+  void initState() {
+    context.read<ProfileBloc>().add(GetProfilePictureEvent());
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,10 +44,43 @@ class ProfilePage extends StatelessWidget {
             stream: FirebaseAuth.instance.userChanges(),
             builder: (context, snapshot) => Column(
               children: [
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundImage: NetworkImage(
-                      'https://avatars.githubusercontent.com/u/13942674?v=4'),
+                BlocConsumer<ProfileBloc, ProfileState>(
+                  listener: (context, state) {
+                    if (state is ChangeProfilePictureErrorState) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(state.errorMessage),
+                        ),
+                      );
+                    }
+                  },
+                  builder: (context, state) {
+                    if (state is ChangeProfilePictureLoadingState) {
+                      return const ProfilePicture(isLoading: true);
+                    }
+                    if (state is ChangeProfilePictureSuccessfulState) {
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<ProfileBloc>().add(ChangeProfilePictureEvent());
+                        },
+                        child: ProfilePicture(pickedImage: state.imageBytes),
+                      );
+                    } else if (state is GetProfilePictureSuccessfulState) {
+                      return GestureDetector(
+                        onTap: () {
+                          context.read<ProfileBloc>().add(ChangeProfilePictureEvent());
+                        },
+                        child: ProfilePicture(pickedImage: state.imageBytes),
+                      );
+                    }
+
+                    return GestureDetector(
+                      onTap: () {
+                        context.read<ProfileBloc>().add(ChangeProfilePictureEvent());
+                      },
+                      child: const ProfilePicture(),
+                    );
+                  },
                 ),
                 const Gap(20),
                 Text(

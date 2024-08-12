@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:subtitle_downloader/features/authentication/ui/forget_password_page.dart';
@@ -117,7 +118,20 @@ class AppNavigation {
                 path: '/profile',
                 name: 'Profile',
                 builder: (context, state) {
-                  return ProfilePage();
+                  return StreamBuilder(
+                    stream: FirebaseAuth.instance.authStateChanges(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData == false) {
+                        return const ProfilePage();
+                      } else {
+                        if (snapshot.data?.emailVerified == false) {
+                          return const VerificationPage();
+                        } else {
+                          return const ProfilePage();
+                        }
+                      }
+                    },
+                  );
                 },
                 routes: [
                   // View Downloaded Subtitles History
