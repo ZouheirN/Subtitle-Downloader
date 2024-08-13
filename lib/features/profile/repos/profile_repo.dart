@@ -1,7 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -47,8 +46,7 @@ class ProfileRepo {
     }
   }
 
-  Future<Either<RepositoryError, void>> deleteAccount(
-      BuildContext context) async {
+  Future<Either<RepositoryError, void>> deleteAccount(String password) async {
     try {
       final User? firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
@@ -56,118 +54,84 @@ class ProfileRepo {
 
         // cancel the listener
         FirestoreService().cancelListener();
+
+        // delete subtitles from Firestore
+        FirestoreService().deleteAccount();
+
+        return right(null);
       }
     } on FirebaseAuthException catch (e) {
+      logger.e(e);
       if (e.code == "requires-recent-login") {
         try {
-          final result = await _reauthenticateAndDelete(context);
-          result.fold(
-            (l) {
-              return left(l);
-            },
-            (r) {
-              return right(null);
-            },
+          final result = await _reauthenticateAndDelete(password);
+
+          // Properly return the result from the fold
+          return result.fold(
+            (l) => left(l),
+            (r) => right(null),
           );
         } catch (e) {
-          rethrow;
+          // Catch and log the reauthentication error
+          logger.e(e);
+          return left(RepositoryError('Re-authentication failed'));
         }
+      } else {
+        // Handle other FirebaseAuthException cases if necessary
+        return left(RepositoryError(e.message ?? 'FirebaseAuthException'));
       }
     } catch (e) {
+      // Log and return a generic error if an unexpected exception occurs
       logger.e(e);
+      return left(RepositoryError('An unexpected error occurred'));
     }
 
+    // Default return if no conditions are met
     return left(RepositoryError('An error occurred'));
   }
 
   Future<Either<RepositoryError, void>> _reauthenticateAndDelete(
-      BuildContext context) async {
+      String password) async {
     try {
-      final providerData = _auth.currentUser?.providerData.first;
+      final providerData = _auth.currentUser?.providerData.firstOrNull;
+      if (providerData == null) {
+        return left(RepositoryError('No provider data available'));
+      }
 
-      if (AppleAuthProvider().providerId == providerData!.providerId) {
+      if (AppleAuthProvider().providerId == providerData.providerId) {
         await _auth.currentUser!
             .reauthenticateWithProvider(AppleAuthProvider());
       } else if (GoogleAuthProvider().providerId == providerData.providerId) {
         await _auth.currentUser!
             .reauthenticateWithProvider(GoogleAuthProvider());
       } else {
-        final emailTextEditingController = TextEditingController();
-        final passwordTextEditingController = TextEditingController();
-        final formKey = GlobalKey<FormState>();
-
-        showModalBottomSheet(
-          context: context,
-          builder: (context) {
-            return Form(
-              key: formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: emailTextEditingController,
-                    decoration: const InputDecoration(hintText: 'Email'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter an email';
-                      }
-                      final emailRegex = RegExp(r'^[^@]+@[^@]+\.[^@]+');
-                      if (!emailRegex.hasMatch(value)) {
-                        return 'Please enter a valid email';
-                      }
-                      return null;
-                    },
-                  ),
-                  TextFormField(
-                    controller: passwordTextEditingController,
-                    decoration: const InputDecoration(hintText: 'Password'),
-                    obscureText: true,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a password';
-                      }
-                      return null;
-                    },
-                  ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (formKey.currentState?.validate() ?? false) {
-                        AuthCredential credentials =
-                            EmailAuthProvider.credential(
-                                email: emailTextEditingController.text.trim(),
-                                password:
-                                    passwordTextEditingController.text.trim());
-
-                        try {
-                          await _auth.currentUser
-                              ?.reauthenticateWithCredential(credentials);
-                        } on FirebaseAuthException catch (e) {
-                          if (e.code == 'user-mismatch' ||
-                              e.code == 'invalid-credential' ||
-                              e.code == 'invalid-email' ||
-                              e.code == 'wrong-password' ||
-                              e.code == 'user-not-found') {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Invalid credentials'),
-                              ),
-                            );
-                          }
-                        }
-                      }
-                    },
-                    child: const Text('Reauthenticate'),
-                  )
-                ],
-              ),
-            );
-          },
+        AuthCredential credentials = EmailAuthProvider.credential(
+          email: _auth.currentUser!.email!,
+          password: password,
         );
+
+        await _auth.currentUser?.reauthenticateWithCredential(credentials);
       }
 
-      await _auth.currentUser?.delete();
+      if (_auth.currentUser != null) {
+        await _auth.currentUser!.delete();
+      } else {
+        return left(RepositoryError('No current user to delete'));
+      }
 
-      // cancel the listener
       FirestoreService().cancelListener();
+
+      // delete subtitles from Firestore
+      FirestoreService().deleteAccount();
+
+      // delete profile picture
+      final imageRef =
+          _storageRef.child('profile_pictures/${_auth.currentUser?.uid}.jpg');
+      try {
+        await imageRef.delete();
+      } catch (e) {
+        logger.e(e);
+      }
 
       return right(null);
     } on FirebaseAuthException catch (e) {

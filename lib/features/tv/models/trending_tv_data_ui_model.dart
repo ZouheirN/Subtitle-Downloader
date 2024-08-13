@@ -44,7 +44,7 @@ class Result {
   OriginalLanguage? originalLanguage;
   List<int>? genreIds;
   double? popularity;
-  DateTime? firstAirDate;
+  // DateTime? firstAirDate;
   double? voteAverage;
   int? voteCount;
   List<String>? originCountry;
@@ -61,7 +61,7 @@ class Result {
     this.originalLanguage,
     this.genreIds,
     this.popularity,
-    this.firstAirDate,
+    // this.firstAirDate,
     this.voteAverage,
     this.voteCount,
     this.originCountry,
@@ -82,9 +82,9 @@ class Result {
             ? []
             : List<int>.from(json["genre_ids"]!.map((x) => x)),
         popularity: json["popularity"]?.toDouble(),
-        firstAirDate: json["first_air_date"] == null
-            ? null
-            : DateTime.parse(json["first_air_date"]),
+        // firstAirDate: json["first_air_date"] == null
+        //     ? null
+        //     : DateTime.parse(json["first_air_date"]),
         voteAverage: json["vote_average"]?.toDouble(),
         voteCount: json["vote_count"],
         originCountry: json["origin_country"] == null
@@ -105,8 +105,8 @@ class Result {
         "genre_ids":
             genreIds == null ? [] : List<dynamic>.from(genreIds!.map((x) => x)),
         "popularity": popularity,
-        "first_air_date":
-            "${firstAirDate!.year.toString().padLeft(4, '0')}-${firstAirDate!.month.toString().padLeft(2, '0')}-${firstAirDate!.day.toString().padLeft(2, '0')}",
+        // "first_air_date":
+        //     "${firstAirDate!.year.toString().padLeft(4, '0')}-${firstAirDate!.month.toString().padLeft(2, '0')}-${firstAirDate!.day.toString().padLeft(2, '0')}",
         "vote_average": voteAverage,
         "vote_count": voteCount,
         "origin_country": originCountry == null

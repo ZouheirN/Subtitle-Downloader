@@ -2,10 +2,9 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:meta/meta.dart';
 import 'package:subtitle_downloader/features/profile/repos/profile_repo.dart';
 
 part 'profile_event.dart';
@@ -62,7 +61,40 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     emit(DeleteAccountLoadingState());
 
-    final result = await ProfileRepo().deleteAccount(event.context);
+    final passwordTextEditingController = TextEditingController();
+
+    // Show dialog and await user input
+    final String? password = await showDialog<String>(
+      context: event.context,
+      builder: (context) {
+        return AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: passwordTextEditingController,
+                obscureText: true,
+                decoration: const InputDecoration(hintText: 'Password'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).pop(passwordTextEditingController.text);
+                },
+                child: const Text('Submit'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (password == null || password.isEmpty) {
+      emit(DeleteAccountErrorState('Password is required'));
+      return;
+    }
+
+    // Proceed with account deletion using the provided password
+    final result = await ProfileRepo().deleteAccount(password);
 
     result.fold(
       (l) => emit(DeleteAccountErrorState(l.message)),

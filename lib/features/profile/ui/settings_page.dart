@@ -135,7 +135,6 @@ class SettingsPage extends StatelessWidget {
                             content: Text('Account successfully deleted'),
                           ),
                         );
-                        context.read<AuthService>().signOut();
                         Navigator.of(context).pop();
                       } else if (state is DeleteAccountErrorState) {
                         ScaffoldMessenger.of(context).showSnackBar(

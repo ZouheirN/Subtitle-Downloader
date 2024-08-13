@@ -129,8 +129,6 @@ class AuthService {
         // cancel the listener
         FirestoreService().cancelListener();
 
-        // return profile picture to null
-
         await FirebaseAuth.instance.signOut();
       }
     } catch (e) {

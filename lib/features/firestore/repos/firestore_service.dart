@@ -142,4 +142,15 @@ class FirestoreService {
 
     listener?.snapshots().listen((event) {}).cancel();
   }
+
+  Future<void> deleteAccount() async {
+    if (FirebaseAuth.instance.currentUser == null) return;
+
+    final uid = FirebaseAuth.instance.currentUser!.uid;
+    try {
+      await firestore.collection('users').doc(uid).delete();
+    } catch (e) {
+      logger.e(e);
+    }
+  }
 }
