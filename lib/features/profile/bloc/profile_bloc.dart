@@ -61,40 +61,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     emit(DeleteAccountLoadingState());
 
-    final passwordTextEditingController = TextEditingController();
-
-    // Show dialog and await user input
-    final String? password = await showDialog<String>(
-      context: event.context,
-      builder: (context) {
-        return AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: passwordTextEditingController,
-                obscureText: true,
-                decoration: const InputDecoration(hintText: 'Password'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop(passwordTextEditingController.text);
-                },
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-
-    if (password == null || password.isEmpty) {
-      emit(DeleteAccountErrorState('Password is required'));
-      return;
-    }
-
     // Proceed with account deletion using the provided password
-    final result = await ProfileRepo().deleteAccount(password);
+    final result = await ProfileRepo().deleteAccount(event.context);
 
     result.fold(
       (l) => emit(DeleteAccountErrorState(l.message)),

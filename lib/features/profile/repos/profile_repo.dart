@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -46,7 +47,8 @@ class ProfileRepo {
     }
   }
 
-  Future<Either<RepositoryError, void>> deleteAccount(String password) async {
+  Future<Either<RepositoryError, void>> deleteAccount(
+      BuildContext context) async {
     try {
       final User? firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
@@ -64,7 +66,7 @@ class ProfileRepo {
       logger.e(e);
       if (e.code == "requires-recent-login") {
         try {
-          final result = await _reauthenticateAndDelete(password);
+          final result = await _reauthenticateAndDelete(context);
 
           // Properly return the result from the fold
           return result.fold(
@@ -91,7 +93,7 @@ class ProfileRepo {
   }
 
   Future<Either<RepositoryError, void>> _reauthenticateAndDelete(
-      String password) async {
+      BuildContext context) async {
     try {
       final providerData = _auth.currentUser?.providerData.firstOrNull;
       if (providerData == null) {
@@ -105,6 +107,38 @@ class ProfileRepo {
         await _auth.currentUser!
             .reauthenticateWithProvider(GoogleAuthProvider());
       } else {
+        final passwordTextEditingController = TextEditingController();
+
+        // Show dialog and await user input
+        final String? password = await showDialog<String>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: passwordTextEditingController,
+                    obscureText: true,
+                    decoration: const InputDecoration(hintText: 'Password'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pop(passwordTextEditingController.text);
+                    },
+                    child: const Text('Submit'),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+
+        if (password == null || password.isEmpty) {
+          return left(RepositoryError('Password is required'));
+        }
+
         AuthCredential credentials = EmailAuthProvider.credential(
           email: _auth.currentUser!.email!,
           password: password,
@@ -142,6 +176,8 @@ class ProfileRepo {
           e.code == 'wrong-password' ||
           e.code == 'user-not-found') {
         return left(RepositoryError('Invalid credentials'));
+      } else if (e.code == 'web-context-canceled') {
+        return left(RepositoryError('Operation canceled'));
       }
     } catch (e) {
       logger.e(e);
