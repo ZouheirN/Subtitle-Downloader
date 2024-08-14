@@ -12,7 +12,7 @@ Subtitle Downloader using Subdl API, made with Flutter.
 - Download TV shows subtitles
 - File manager to search downloaded movies/TV shows and download appropriate subtitles
 - Fetch metadata from TMDB
-- Syncing with Firebase (Work in progress...)
+- Syncing with Firebase
 
 ## Getting Started
 
