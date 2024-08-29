@@ -18,6 +18,9 @@ class HomeTvPage extends StatefulWidget {
 }
 
 class _HomeTvPageState extends State<HomeTvPage> {
+  final TvBloc _trendingTvBloc = TvBloc();
+  final TvBloc _onTheAirTvBloc = TvBloc();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +51,7 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc: TvBloc()..add(TrendingTvInitialFetchEvent()),
+              bloc: _trendingTvBloc..add(TrendingTvInitialFetchEvent()),
               buildWhen: (previous, current) => current is! TvActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
@@ -60,6 +63,29 @@ class _HomeTvPageState extends State<HomeTvPage> {
                         state as TrendingTvFetchingSuccessfulState;
                     return _buildTrendingTvCarousel(
                         successState.trendingTvDataUiModel);
+
+                  case const (TrendingTvFetchingErrorState):
+                    return Center(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Error fetching trending TV shows',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(8),
+                          ElevatedButton.icon(
+                            label: const Text('Retry'),
+                            icon: const Icon(Icons.refresh_rounded),
+                            onPressed: () {
+                              _trendingTvBloc
+                                  .add(TrendingTvInitialFetchEvent());
+                            },
+                          ),
+                        ],
+                      ),
+                    );
 
                   default:
                     return const SizedBox();
@@ -79,7 +105,7 @@ class _HomeTvPageState extends State<HomeTvPage> {
             ),
             const Gap(20),
             BlocBuilder<TvBloc, TvState>(
-              bloc: TvBloc()..add(OnTheAirTvInitialFetchEvent()),
+              bloc: _onTheAirTvBloc..add(OnTheAirTvInitialFetchEvent()),
               buildWhen: (previous, current) => current is! TvActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
@@ -174,6 +200,29 @@ class _HomeTvPageState extends State<HomeTvPage> {
                               ),
                             )
                             .toList(),
+                      ),
+                    );
+
+                  case const (OnTheAirTvFetchingErrorState):
+                    return Center(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Error fetching on the air TV shows',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(8),
+                          ElevatedButton.icon(
+                            label: const Text('Retry'),
+                            icon: const Icon(Icons.refresh_rounded),
+                            onPressed: () {
+                              _onTheAirTvBloc
+                                  .add(OnTheAirTvInitialFetchEvent());
+                            },
+                          ),
+                        ],
                       ),
                     );
 

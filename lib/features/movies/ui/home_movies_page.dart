@@ -18,6 +18,9 @@ class HomeMoviesPage extends StatefulWidget {
 }
 
 class _HomeMoviesPageState extends State<HomeMoviesPage> {
+  final MoviesBloc _trendingMoviesBloc = MoviesBloc();
+  final MoviesBloc _nowPlayingMoviesBloc = MoviesBloc();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +50,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             ),
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: MoviesBloc()..add(TrendingMoviesInitialFetchEvent()),
+              bloc: _trendingMoviesBloc..add(TrendingMoviesInitialFetchEvent()),
               buildWhen: (previous, current) => current is! MoviesActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
@@ -59,6 +62,29 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                         state as TrendingMoviesFetchingSuccessfulState;
                     return _buildTrendingMoviesCarousel(
                         successState.trendingMoviesDataUiModel);
+
+                  case const (TrendingMoviesFetchingErrorState):
+                    return Center(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Error fetching trending movies',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(8),
+                          ElevatedButton.icon(
+                            label: const Text('Retry'),
+                            icon: const Icon(Icons.refresh_rounded),
+                            onPressed: () {
+                              _trendingMoviesBloc
+                                  .add(TrendingMoviesInitialFetchEvent());
+                            },
+                          ),
+                        ],
+                      ),
+                    );
 
                   default:
                     return const SizedBox();
@@ -78,7 +104,8 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
             ),
             const Gap(20),
             BlocBuilder<MoviesBloc, MoviesState>(
-              bloc: MoviesBloc()..add(NowPlayingMoviesInitialFetchEvent()),
+              bloc: _nowPlayingMoviesBloc
+                ..add(NowPlayingMoviesInitialFetchEvent()),
               buildWhen: (previous, current) => current is! MoviesActionState,
               builder: (context, state) {
                 switch (state.runtimeType) {
@@ -175,6 +202,29 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                               ),
                             )
                             .toList(),
+                      ),
+                    );
+
+                  case const (NowPlayingMoviesFetchingErrorState):
+                    return Center(
+                      child: Column(
+                        children: [
+                          const Text(
+                            'Error fetching now playing movies',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Gap(8),
+                          ElevatedButton.icon(
+                            label: const Text('Retry'),
+                            icon: const Icon(Icons.refresh_rounded),
+                            onPressed: () {
+                              _nowPlayingMoviesBloc
+                                  .add(NowPlayingMoviesInitialFetchEvent());
+                            },
+                          ),
+                        ],
                       ),
                     );
 
