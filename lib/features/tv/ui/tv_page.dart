@@ -113,6 +113,24 @@ class _TvPageState extends State<TvPage> {
               final successState = state as TvViewFetchingSuccessfulState;
               return _buildTvView(successState.tvDataUiModel);
 
+            case const (TvViewFetchingErrorState):
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Failed to Fetch TV Show Data'),
+                    const Gap(8),
+                    ElevatedButton(
+                      onPressed: () {
+                        tvBloc.add(
+                            TvViewInitialFetchEvent(widget.tvId.toString()));
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+
             default:
               return const SizedBox();
           }

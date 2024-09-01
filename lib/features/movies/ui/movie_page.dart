@@ -88,6 +88,24 @@ class _MoviePageState extends State<MoviePage> {
               final successState = state as MovieViewFetchingSuccessfulState;
               return _buildMovieView(successState.movieDataUiModel);
 
+            case const (MovieViewFetchingErrorState):
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Failed to Fetch Movie Data'),
+                    const Gap(8),
+                    ElevatedButton(
+                      onPressed: () {
+                        movieBloc
+                            .add(MovieViewInitialFetchEvent(widget.movieId));
+                      },
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+
             default:
               return const SizedBox();
           }
