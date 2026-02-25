@@ -54,7 +54,7 @@ class _LanguageDropdownState extends State<LanguageDropdown> {
     );
   }
 
-  _buildDropdown(Map<String, dynamic> data) {
+  DropdownButton<String> _buildDropdown(Map<String, dynamic> data) {
     return DropdownButton<String>(
       value: widget.initialLanguage,
       onChanged: (String? newValue) {

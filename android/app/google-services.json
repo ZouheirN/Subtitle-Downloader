@@ -12,7 +12,20 @@
           "package_name": "com.zouheirn.subtitledownloader"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "1048358993447-0jj3flui7e6fcg4f6f638qpu4fol5j36.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.zouheirn.subtitledownloader",
+            "certificate_hash": "613cdee69ec2a80c1d90cf3273e5a54f89ec1bd3"
+          }
+        },
+        {
+          "client_id": "1048358993447-6ajimredcj18e497hmgbbu6i78k9dda2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBOe8ex07xdtkQTh5GOSPbiGk-_xEUysao"
@@ -20,7 +33,55 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1048358993447-6ajimredcj18e497hmgbbu6i78k9dda2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1048358993447-kkk4r6ol299hd619fmrjp4f51qn4vmoq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zouheirn.subtitledownloader"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1048358993447:android:d65553a330cf77e576d802",
+        "android_client_info": {
+          "package_name": "com.zouheirn.subtitledownloader.subtitle_downloader"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1048358993447-6ajimredcj18e497hmgbbu6i78k9dda2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOe8ex07xdtkQTh5GOSPbiGk-_xEUysao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1048358993447-6ajimredcj18e497hmgbbu6i78k9dda2.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1048358993447-kkk4r6ol299hd619fmrjp4f51qn4vmoq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.zouheirn.subtitledownloader"
+              }
+            }
+          ]
         }
       }
     }

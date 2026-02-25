@@ -1,9 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
-import 'package:subtitle_downloader/features/profile/bloc/profile_bloc.dart';
 import 'package:subtitle_downloader/main.dart';
 
 class RepositoryError {

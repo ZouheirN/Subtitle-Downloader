@@ -168,7 +168,7 @@ class FileManagerPage extends StatelessWidget {
     );
   }
 
-  sort(BuildContext context) async {
+  Future<void> sort(BuildContext context) async {
     showDialog(
       context: context,
       builder: (context) => Dialog(

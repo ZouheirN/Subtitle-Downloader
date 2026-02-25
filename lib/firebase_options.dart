@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBOe8ex07xdtkQTh5GOSPbiGk-_xEUysao',
-    appId: '1:1048358993447:android:8cb7ed3234091cb776d802',
+    appId: '1:1048358993447:android:d65553a330cf77e576d802',
     messagingSenderId: '1048358993447',
     projectId: 'subtitle-downloader-1580b',
     storageBucket: 'subtitle-downloader-1580b.appspot.com',
@@ -59,10 +59,13 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyAkDwXluqF0uamjFi-2p3G5I2csU7AUKc4',
-    appId: '1:1048358993447:ios:8cba2cc96737e61e76d802',
+    appId: '1:1048358993447:ios:b821b2d96d5a609676d802',
     messagingSenderId: '1048358993447',
     projectId: 'subtitle-downloader-1580b',
     storageBucket: 'subtitle-downloader-1580b.appspot.com',
-    iosBundleId: 'com.zouheirn.subtitledownloader',
+    androidClientId: '1048358993447-0jj3flui7e6fcg4f6f638qpu4fol5j36.apps.googleusercontent.com',
+    iosClientId: '1048358993447-dbm99jlmpn9v7nq3aj7jehvr8lmfdec2.apps.googleusercontent.com',
+    iosBundleId: 'com.zouheirn.subtitledownloader.subtitleDownloader',
   );
+
 }

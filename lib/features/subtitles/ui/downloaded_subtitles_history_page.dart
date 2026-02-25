@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:subtitle_downloader/features/subtitles/bloc/subtitle_bloc.dart';
 import 'package:subtitle_downloader/hive/downloaded_subtitles_box.dart';
-import 'package:subtitle_downloader/main.dart';
 
 class DownloadedSubtitlesHistoryPage extends StatefulWidget {
   const DownloadedSubtitlesHistoryPage({super.key});

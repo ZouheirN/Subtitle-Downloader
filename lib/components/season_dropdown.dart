@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:subtitle_downloader/features/tv/models/tv_data_ui_model.dart';
-import 'package:subtitle_downloader/main.dart';
 
 class SeasonDropdown extends StatelessWidget {
   final void Function(int, int)? onSeasonChanged;

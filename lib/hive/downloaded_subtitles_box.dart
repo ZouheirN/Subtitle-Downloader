@@ -1,6 +1,5 @@
 import 'package:hive/hive.dart';
 import 'package:subtitle_downloader/features/firestore/repos/firestore_service.dart';
-import 'package:subtitle_downloader/main.dart';
 
 class DownloadedSubtitlesBox {
   static Box downloadedSubtitlesBox = Hive.box('downloadedSubtitlesBox');

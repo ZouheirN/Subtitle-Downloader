@@ -16,7 +16,7 @@ class SettingsBox {
     return settingsBox.get('defaultLanguage', defaultValue: 'EN');
   }
 
-  static setDefaultLanguage(String language) {
+  static void setDefaultLanguage(String language) {
     settingsBox.put('defaultLanguage', language);
   }
 }
