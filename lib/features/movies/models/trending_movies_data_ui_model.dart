@@ -77,7 +77,7 @@ class Result {
         adult: json["adult"],
         title: json["title"],
         originalLanguage:
-            originalLanguageValues.map[json["original_language"]]!,
+            originalLanguageValues.map[json["original_language"]],
         genreIds: json["genre_ids"] == null
             ? []
             : List<int>.from(json["genre_ids"]!.map((x) => x)),
