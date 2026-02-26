@@ -5,8 +5,12 @@ class DownloadedSubtitlesBox {
   static Box downloadedSubtitlesBox = Hive.box('downloadedSubtitlesBox');
 
   static void addDownloadedSubtitle(
-      String url, String releaseName, String author, String movieName,
-      {required bool localOnly}) {
+    String url,
+    String releaseName,
+    String author,
+    String movieName, {
+    required bool localOnly,
+  }) {
     // do not add if already exists
     if (downloadedSubtitlesBox.containsKey(url)) return;
 
@@ -14,12 +18,17 @@ class DownloadedSubtitlesBox {
       'releaseName': releaseName,
       'author': author,
       'movieName': movieName,
+      'downloaded_on': DateTime.now().toIso8601String(),
     });
 
     if (localOnly) return;
     // sync to firestore
-    FirestoreService()
-        .addSubtitleToFirestore(url, releaseName, author, movieName);
+    FirestoreService().addSubtitleToFirestore(
+      url,
+      releaseName,
+      author,
+      movieName,
+    );
   }
 
   static bool isSubtitleDownloaded(String url) {
@@ -27,25 +36,39 @@ class DownloadedSubtitlesBox {
   }
 
   static List<Map<String, List>> getAllDownloadedSubtitles() {
-    // group by movie name: [{"movieName": [{}, {}]}, {"movieName2": [{}, {}]}]
     List<Map<String, List>> downloadedSubtitles = [];
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
 
     for (var url in downloadedSubtitlesBox.keys) {
       final subtitle = downloadedSubtitlesBox.get(url);
-      // add url
+      if (subtitle == null || subtitle is! Map) continue;
       subtitle['url'] = url;
-      final movieName = subtitle['movieName'];
+      final movieName = subtitle['movieName'] ?? 'Unknown';
+      grouped
+          .putIfAbsent(movieName, () => [])
+          .add(Map<String, dynamic>.from(subtitle));
+    }
 
-      final movieIndex = downloadedSubtitles
-          .indexWhere((element) => element.keys.first == movieName);
-
-      if (movieIndex == -1) {
-        downloadedSubtitles.add({
-          movieName: [subtitle]
-        });
-      } else {
-        downloadedSubtitles[movieIndex][movieName]?.add(subtitle);
-      }
+    // sort each movie's list by downloaded_on descending (newest first)
+    for (var entry in grouped.entries) {
+      entry.value.sort((a, b) {
+        final aStr = a['downloaded_on'] ?? '';
+        final bStr = b['downloaded_on'] ?? '';
+        DateTime aDt;
+        DateTime bDt;
+        try {
+          aDt = DateTime.parse(aStr);
+        } catch (_) {
+          aDt = DateTime.fromMillisecondsSinceEpoch(0);
+        }
+        try {
+          bDt = DateTime.parse(bStr);
+        } catch (_) {
+          bDt = DateTime.fromMillisecondsSinceEpoch(0);
+        }
+        return bDt.compareTo(aDt);
+      });
+      downloadedSubtitles.add({entry.key: entry.value});
     }
 
     return downloadedSubtitles;
@@ -60,7 +83,10 @@ class DownloadedSubtitlesBox {
     FirestoreService().clearAllSubtitlesFromFirestore();
   }
 
-  static Future<void> deleteDownloadedSubtitle(String url, bool localOnly) async {
+  static Future<void> deleteDownloadedSubtitle(
+    String url,
+    bool localOnly,
+  ) async {
     downloadedSubtitlesBox.delete(url);
 
     if (localOnly) return;

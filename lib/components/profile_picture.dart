@@ -18,21 +18,16 @@ class ProfilePicture extends StatelessWidget {
         image: pickedImage != null
             ? DecorationImage(
                 fit: BoxFit.cover,
-                image: Image.memory(
-                  pickedImage!,
-                  fit: BoxFit.cover,
-                ).image,
+                image: Image.memory(pickedImage!, fit: BoxFit.cover).image,
               )
             : null,
       ),
       child: Center(
         child: isLoading
             ? const CircularProgressIndicator()
-            : const Icon(
-                Icons.person_rounded,
-                size: 50,
-                color: Colors.black38,
-              ),
+            : pickedImage == null
+            ? const Icon(Icons.person_rounded, size: 50, color: Colors.black38)
+            : null,
       ),
     );
   }
