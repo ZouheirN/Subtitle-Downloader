@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -21,6 +22,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  bool _obscurePassword = true;
 
   @override
   void dispose() {
@@ -68,17 +70,33 @@ class _LoginPageState extends State<LoginPage> {
                       decoration: const InputDecoration(
                         labelText: 'Email',
                       ),
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
                       autofillHints: const [AutofillHints.email],
                       validator: _validateEmail,
                     ),
                     const Gap(8),
                     TextFormField(
                       controller: _passwordController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Password',
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_off
+                                : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _obscurePassword = !_obscurePassword;
+                            });
+                          },
+                        ),
                       ),
-                      obscureText: true,
+                      obscureText: _obscurePassword,
+                      textInputAction: TextInputAction.done,
                       autofillHints: const [AutofillHints.password],
+                      onFieldSubmitted: (_) => _signIn(),
                       validator: _validatePassword,
                     ),
                   Align(
@@ -105,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                         );
                       } else if (state is SignInSuccessfulState) {
+                        TextInput.finishAutofillContext();
                         context
                             .read<ProfileBloc>()
                             .add(GetProfilePictureEvent());
