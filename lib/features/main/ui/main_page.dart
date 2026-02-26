@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:subtitle_downloader/features/file_manager/ui/file_manager_page.dart';
 
 class MainPage extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
@@ -22,9 +23,21 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: widget.navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
+    return ValueListenableBuilder<VoidCallback?>(
+      valueListenable: FileManagerPage.backHandler,
+      builder: (context, backHandler, child) {
+        final shouldIntercept = _selectedIndex == 2 && backHandler != null;
+        return PopScope(
+          canPop: !shouldIntercept,
+          onPopInvokedWithResult: (didPop, _) {
+            if (!didPop && shouldIntercept) backHandler!();
+          },
+          child: child!,
+        );
+      },
+      child: Scaffold(
+        body: widget.navigationShell,
+        bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
           setState(() {
             _selectedIndex = index;
@@ -52,6 +65,7 @@ class _MainPageState extends State<MainPage> {
             label: 'Profile',
           ),
         ],
+      ),
       ),
     );
   }

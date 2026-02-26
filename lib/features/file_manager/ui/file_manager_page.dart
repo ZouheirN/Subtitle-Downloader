@@ -21,6 +21,10 @@ class _NavEntry {
 class FileManagerPage extends StatefulWidget {
   const FileManagerPage({super.key});
 
+  /// Notifier that holds the back callback when the file manager has
+  /// navigation history, or null when it's at the root.
+  static final backHandler = ValueNotifier<VoidCallback?>(null);
+
   @override
   State<FileManagerPage> createState() => _FileManagerPageState();
 }
@@ -31,11 +35,30 @@ class _FileManagerPageState extends State<FileManagerPage> {
   List<StoraxEntry> _entries = [];
   bool _loading = false;
   _SortBy _sortBy = _SortBy.name;
+  int _rootCount = 0;
+  bool _hasPermission = true;
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _showStorageRoots());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _ensurePermission());
+  }
+
+  Future<void> _ensurePermission() async {
+    final granted = await _storax.hasAllFilesAccess();
+    if (!mounted) return;
+    if (granted) {
+      setState(() => _hasPermission = true);
+      _showStorageRoots();
+    } else {
+      setState(() => _hasPermission = false);
+      await _storax.requestAllFilesAccess();
+      if (!mounted) return;
+      final now = await _storax.hasAllFilesAccess();
+      if (!mounted) return;
+      setState(() => _hasPermission = now);
+      if (now) _showStorageRoots();
+    }
   }
 
   Future<void> _loadDirectory() async {
@@ -80,11 +103,22 @@ class _FileManagerPageState extends State<FileManagerPage> {
 
   bool _canGoBack() => _pathStack.length > 1;
 
+  void _updateBackHandler() {
+    FileManagerPage.backHandler.value = _canGoBack() ? _goBack : null;
+  }
+
   void _goBack() {
     if (_canGoBack()) {
       setState(() => _pathStack.removeLast());
+      _updateBackHandler();
       _loadDirectory();
     }
+  }
+
+  @override
+  void dispose() {
+    FileManagerPage.backHandler.value = null;
+    super.dispose();
   }
 
   String _formatBytes(int bytes) {
@@ -96,70 +130,70 @@ class _FileManagerPageState extends State<FileManagerPage> {
   }
 
   Future<void> _requestPermission() async {
-    if (await _storax.hasAllFilesAccess()) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Permission already granted")),
-        );
-      }
-    } else {
-      await _storax.requestAllFilesAccess();
-    }
+    await _storax.requestAllFilesAccess();
+    if (!mounted) return;
+    final granted = await _storax.hasAllFilesAccess();
+    if (!mounted) return;
+    setState(() => _hasPermission = granted);
+    if (granted) _showStorageRoots();
+  }
+
+  void _selectVolume(StoraxVolume v) {
+    final target = v.isSaf ? v.uri! : v.path!;
+    setState(() {
+      _pathStack.clear();
+      _pathStack.add(_NavEntry(
+        target: target,
+        isSaf: v.isSaf,
+        title: v.name,
+      ));
+    });
+    _updateBackHandler();
+    _loadDirectory();
   }
 
   Future<void> _showStorageRoots() async {
     if (!mounted) return;
+
+    final allRoots = await _storax.getAllRoots();
+    if (!mounted) return;
+
+    final roots =
+        allRoots.where((v) => (v.isSaf ? v.uri : v.path) != null).toList();
+
+    setState(() => _rootCount = roots.length);
+
+    if (roots.length == 1) {
+      _selectVolume(roots.first);
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: true,
       builder: (context) => Dialog(
-        child: FutureBuilder<List<StoraxVolume>>(
-          future: _storax.getAllRoots(),
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final List<StoraxVolume> roots = snapshot.data!;
-              return Padding(
-                padding: const EdgeInsets.all(10.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    ...roots
-                        .where((v) => (v.isSaf ? v.uri : v.path) != null)
-                        .map(
-                          (v) => ListTile(
-                            leading:
-                                Icon(v.isSaf ? Icons.lock : Icons.storage),
-                            title: Text(v.name),
-                            subtitle:
-                                Text(v.isSaf ? 'SAF folder' : (v.path ?? '')),
-                            onTap: () {
-                              final target = v.isSaf ? v.uri! : v.path!;
-                              setState(() {
-                                _pathStack.clear();
-                                _pathStack.add(_NavEntry(
-                                  target: target,
-                                  isSaf: v.isSaf,
-                                  title: v.name,
-                                ));
-                              });
-                              _loadDirectory();
-                              Navigator.pop(context);
-                            },
-                          ),
-                        ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                  ],
+        child: Padding(
+          padding: const EdgeInsets.all(10.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...roots.map(
+                (v) => ListTile(
+                  leading: Icon(v.isSaf ? Icons.lock : Icons.storage),
+                  title: Text(v.name),
+                  subtitle: Text(v.isSaf ? 'SAF folder' : (v.path ?? '')),
+                  onTap: () {
+                    _selectVolume(v);
+                    Navigator.pop(context);
+                  },
                 ),
-              );
-            }
-            return const Padding(
-              padding: EdgeInsets.all(24.0),
-              child: CircularProgressIndicator(),
-            );
-          },
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -227,14 +261,7 @@ class _FileManagerPageState extends State<FileManagerPage> {
         _pathStack.isEmpty ? 'File Manager' : _pathStack.last.title;
     final showLeading = _canGoBack();
 
-    return PopScope(
-      canPop: !_canGoBack(),
-      onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && _canGoBack()) {
-          _goBack();
-        }
-      },
-      child: Scaffold(
+    return Scaffold(
         appBar: AppBar(
           title: Text(title),
           automaticallyImplyLeading: false,
@@ -245,21 +272,23 @@ class _FileManagerPageState extends State<FileManagerPage> {
                 )
               : null,
           actions: [
-            IconButton(
-              onPressed: _requestPermission,
-              icon: const Icon(Icons.key_rounded),
-              tooltip: "Request Files Access Permission",
-            ),
+            if (!_hasPermission)
+              IconButton(
+                onPressed: _requestPermission,
+                icon: const Icon(Icons.key_rounded),
+                tooltip: "Request Files Access Permission",
+              ),
             IconButton(
               onPressed: _showSortDialog,
               icon: const Icon(Icons.sort_rounded),
               tooltip: "Sort",
             ),
-            IconButton(
-              onPressed: _showStorageRoots,
-              icon: const Icon(Icons.sd_storage_rounded),
-              tooltip: "Select Storage",
-            ),
+            if (_rootCount > 1)
+              IconButton(
+                onPressed: _showStorageRoots,
+                icon: const Icon(Icons.sd_storage_rounded),
+                tooltip: "Select Storage",
+              ),
           ],
         ),
         body: _loading
@@ -291,6 +320,7 @@ class _FileManagerPageState extends State<FileManagerPage> {
                                   title: entry.name,
                                 ));
                               });
+                              _updateBackHandler();
                               _loadDirectory();
                             } else {
                               final fileName =
@@ -311,7 +341,6 @@ class _FileManagerPageState extends State<FileManagerPage> {
                       );
                     },
                   ),
-      ),
     );
   }
 
