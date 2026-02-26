@@ -10,11 +10,7 @@ class ChangeProfilePictureEvent extends ProfileEvent {}
 class GetProfilePictureEvent extends ProfileEvent {}
 
 // Delete Account
-class DeleteAccountEvent extends ProfileEvent {
-  final BuildContext context;
-
-  DeleteAccountEvent(this.context);
-}
+class DeleteAccountEvent extends ProfileEvent {}
 
 // Clear Profile Picture
 class ClearProfilePictureEvent extends ProfileEvent {}

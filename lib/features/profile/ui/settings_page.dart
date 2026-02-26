@@ -199,7 +199,7 @@ Since this is a security-sensitive operation, you may be asked to login before y
                                     onPressed: () {
                                       context
                                           .read<ProfileBloc>()
-                                          .add(DeleteAccountEvent(context));
+                                          .add(DeleteAccountEvent());
                                       Navigator.of(context).pop();
                                     },
                                   ),

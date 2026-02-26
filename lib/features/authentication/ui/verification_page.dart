@@ -48,8 +48,13 @@ class _VerificationPageState extends State<VerificationPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-                'A verification email has been sent to your email address.'),
+            const Align(
+              alignment: Alignment.center,
+              child: Text(
+                'A verification email has been sent to your email address.',
+                textAlign: TextAlign.center,
+                ),
+            ),
             const Text('Please verify your email to continue.'),
             const Gap(16),
             ElevatedButton(

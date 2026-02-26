@@ -20,7 +20,7 @@ class AppNavigation {
   static String initR = '/movies';
 
   // Private Navigator Keys
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>();
+  static final rootNavigatorKey = GlobalKey<NavigatorState>();
   static final _rootNavigatorMovies =
       GlobalKey<NavigatorState>(debugLabel: 'shellMovies');
   static final _rootNavigatorTV =
@@ -33,7 +33,7 @@ class AppNavigation {
   // Go Router Configuration
   static final GoRouter router = GoRouter(
     initialLocation: initR,
-    navigatorKey: _rootNavigatorKey,
+    navigatorKey: rootNavigatorKey,
     debugLogDiagnostics: true,
     routes: <RouteBase>[
       StatefulShellRoute.indexedStack(
@@ -60,7 +60,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'view-movie/:movieId/:movieName',
                     name: 'View Movie',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => MoviePage(
                       key: state.pageKey,
                       movieId: int.parse(state.pathParameters['movieId']!),
@@ -86,7 +86,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'view-tv/:tvId/:tvName',
                     name: 'View TV',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) => TvPage(
                       key: state.pageKey,
                       tvId: int.parse(state.pathParameters['tvId']!),
@@ -138,7 +138,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'downloaded-subtitles-history',
                     name: 'Downloaded Subtitles History',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       return const DownloadedSubtitlesHistoryPage();
                     },
@@ -147,7 +147,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'settings',
                     name: 'Settings',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       return const SettingsPage();
                     },
@@ -156,7 +156,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'login',
                     name: 'Login',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       return const LoginPage();
                     },
@@ -165,7 +165,7 @@ class AppNavigation {
                       GoRoute(
                         path: 'forget-password',
                         name: 'Forget Password',
-                        parentNavigatorKey: _rootNavigatorKey,
+                        parentNavigatorKey: rootNavigatorKey,
                         builder: (context, state) {
                           return const ForgetPasswordPage();
                         },
@@ -176,7 +176,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'sign-up',
                     name: 'Sign Up',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       return const SignUpPage();
                     },
@@ -185,7 +185,7 @@ class AppNavigation {
                   GoRoute(
                     path: 'verification',
                     name: 'Verification',
-                    parentNavigatorKey: _rootNavigatorKey,
+                    parentNavigatorKey: rootNavigatorKey,
                     builder: (context, state) {
                       return const VerificationPage();
                     },

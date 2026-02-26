@@ -61,8 +61,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
     emit(DeleteAccountLoadingState());
 
-    // Proceed with account deletion using the provided password
-    final result = await ProfileRepo().deleteAccount(event.context);
+    final result = await ProfileRepo().deleteAccount();
 
     result.fold(
       (l) => emit(DeleteAccountErrorState(l.message)),

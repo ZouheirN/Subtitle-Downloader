@@ -7,6 +7,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../../../main.dart';
 import '../../firestore/repos/firestore_service.dart';
+import '../../main/app_navigation.dart';
 
 class RepositoryError {
   final String message;
@@ -47,8 +48,7 @@ class ProfileRepo {
     }
   }
 
-  Future<Either<RepositoryError, void>> deleteAccount(
-      BuildContext context) async {
+  Future<Either<RepositoryError, void>> deleteAccount() async {
     try {
       final User? firebaseUser = FirebaseAuth.instance.currentUser;
       if (firebaseUser != null) {
@@ -66,34 +66,28 @@ class ProfileRepo {
       logger.e(e);
       if (e.code == "requires-recent-login") {
         try {
-          final result = await _reauthenticateAndDelete(context);
+          final result = await _reauthenticateAndDelete();
 
-          // Properly return the result from the fold
           return result.fold(
             (l) => left(l),
             (r) => right(null),
           );
         } catch (e) {
-          // Catch and log the reauthentication error
           logger.e(e);
           return left(RepositoryError('Re-authentication failed'));
         }
       } else {
-        // Handle other FirebaseAuthException cases if necessary
         return left(RepositoryError(e.message ?? 'FirebaseAuthException'));
       }
     } catch (e) {
-      // Log and return a generic error if an unexpected exception occurs
       logger.e(e);
       return left(RepositoryError('An unexpected error occurred'));
     }
 
-    // Default return if no conditions are met
     return left(RepositoryError('An error occurred'));
   }
 
-  Future<Either<RepositoryError, void>> _reauthenticateAndDelete(
-      BuildContext context) async {
+  Future<Either<RepositoryError, void>> _reauthenticateAndDelete() async {
     try {
       final providerData = _auth.currentUser?.providerData.firstOrNull;
       if (providerData == null) {
@@ -107,11 +101,17 @@ class ProfileRepo {
         await _auth.currentUser!
             .reauthenticateWithProvider(GoogleAuthProvider());
       } else {
+        final navContext =
+            AppNavigation.rootNavigatorKey.currentContext;
+        if (navContext == null) {
+          return left(RepositoryError('Navigation context unavailable'));
+        }
+
         final passwordTextEditingController = TextEditingController();
 
         // Show dialog and await user input
         final String? password = await showDialog<String>(
-          context: context,
+          context: navContext,
           builder: (context) {
             return AlertDialog(
               content: Column(
