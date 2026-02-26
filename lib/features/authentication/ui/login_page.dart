@@ -58,26 +58,29 @@ class _LoginPageState extends State<LoginPage> {
           padding: const EdgeInsets.all(16.0),
           child: Form(
             key: _formKey,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  TextFormField(
-                    controller: _emailController,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
+            child: AutofillGroup(
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(
+                        labelText: 'Email',
+                      ),
+                      autofillHints: const [AutofillHints.email],
+                      validator: _validateEmail,
                     ),
-                    validator: _validateEmail,
-                  ),
-                  const Gap(8),
-                  TextFormField(
-                    controller: _passwordController,
-                    decoration: const InputDecoration(
-                      hintText: 'Password',
+                    const Gap(8),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(
+                        hintText: 'Password',
+                      ),
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      validator: _validatePassword,
                     ),
-                    obscureText: true,
-                    validator: _validatePassword,
-                  ),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(
@@ -189,7 +192,8 @@ class _LoginPageState extends State<LoginPage> {
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.red),
                   ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
