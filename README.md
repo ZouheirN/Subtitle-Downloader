@@ -2,7 +2,7 @@
 <a href="https://wakatime.com/badge/user/5a36320a-d953-4e8f-9cb9-ae08ea9dbf4a/project/3d9b2a8c-2d12-4617-b3c0-00b752adba9e"><img src="https://wakatime.com/badge/user/5a36320a-d953-4e8f-9cb9-ae08ea9dbf4a/project/3d9b2a8c-2d12-4617-b3c0-00b752adba9e.svg" alt="wakatime"></a>
 </div>
 
-# Subtitle Downloader
+# EZ Subtitle Downloader
 
 Subtitle Downloader using Subdl API, made with Flutter.
 
@@ -31,4 +31,5 @@ SUBDL_API_KEY=(subdl api key here)
   <img src="https://github.com/user-attachments/assets/419be63a-c6fe-4239-9692-4f137721047e" width="200" alt="Screenshot 2" />
   <img src="https://github.com/user-attachments/assets/5807f302-beab-495c-97fb-166e588fd0ba" width="200" alt="Screenshot 3" />
 </div>
+
 
