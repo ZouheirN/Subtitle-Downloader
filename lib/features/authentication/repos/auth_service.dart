@@ -12,6 +12,7 @@ class RepositoryError {
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _googleSignIn = GoogleSignIn.instance;
 
   Future<Either<RepositoryError, User?>> signUpWithEmailAndPassword(
       String email, String password, String username) async {
@@ -103,16 +104,17 @@ class AuthService {
 
   Future<UserCredential?> signInWithGoogle() async {
     try {
-      final googleUser = await GoogleSignIn().signIn();
+      await _googleSignIn.initialize();
 
-      final googleAuth = await googleUser?.authentication;
+      final GoogleSignInAccount googleUser = await _googleSignIn.authenticate();
 
-      final cred = GoogleAuthProvider.credential(
-        accessToken: googleAuth?.accessToken,
-        idToken: googleAuth?.idToken,
+      final GoogleSignInAuthentication googleAuth = googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
       );
 
-      return await _auth.signInWithCredential(cred);
+      return await _auth.signInWithCredential(credential);
     } catch (e) {
       logger.e(e);
     }
@@ -128,6 +130,11 @@ class AuthService {
         FirestoreService().cancelListener();
 
         await FirebaseAuth.instance.signOut();
+
+        // sign out from Google if the user signed in with Google
+        if (firebaseUser.providerData.any((info) => info.providerId == 'google.com')) {
+          await _googleSignIn.signOut();
+        }
       }
     } catch (e) {
       logger.e(e);
