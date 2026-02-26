@@ -4,7 +4,6 @@ import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:subtitle_downloader/features/file_manager/ui/file_subtitle_select_dialog.dart';
-import 'package:subtitle_downloader/main.dart';
 
 class FileManagerPage extends StatelessWidget {
   final FileManagerController _fileManagerController = FileManagerController();
