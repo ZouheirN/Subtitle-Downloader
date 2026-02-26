@@ -4,6 +4,7 @@ import 'package:file_manager/file_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:subtitle_downloader/features/file_manager/ui/file_subtitle_select_dialog.dart';
+import 'package:subtitle_downloader/main.dart';
 
 class FileManagerPage extends StatelessWidget {
   final FileManagerController _fileManagerController = FileManagerController();
@@ -15,46 +16,54 @@ class FileManagerPage extends StatelessWidget {
     return ControlBackButton(
       controller: _fileManagerController,
       child: Scaffold(
-        appBar: AppBar(
-          actions: [
-            IconButton(
-              onPressed: () async {
-                if (!await Permission.manageExternalStorage.isGranted) {
-                  await Permission.manageExternalStorage.request();
-                } else {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Permission already granted"),
-                      ),
-                    );
-                  }
-                }
-              },
-              icon: const Icon(Icons.key_rounded),
-              tooltip: "Request Files Access Permission",
-            ),
-            IconButton(
-              onPressed: () => sort(context),
-              icon: const Icon(Icons.sort_rounded),
-              tooltip: "Sort",
-            ),
-            IconButton(
-              onPressed: () => selectStorage(context),
-              icon: const Icon(Icons.sd_storage_rounded),
-              tooltip: "Select Storage",
-            )
-          ],
-          title: ValueListenableBuilder<String>(
+        appBar: PreferredSize(
+          preferredSize: const Size.fromHeight(kToolbarHeight),
+          child: ValueListenableBuilder<String>(
             valueListenable: _fileManagerController.titleNotifier,
             builder: (context, value, child) {
-              return Text(value);
-            },
-          ),
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () async {
-              await _fileManagerController.goToParentDirectory();
+              final path = _fileManagerController.getCurrentPath;
+              final showLeading = path != '' && path != '/storage/emulated/0';
+              return AppBar(
+                actions: [
+                  IconButton(
+                    onPressed: () async {
+                      if (!await Permission.manageExternalStorage.isGranted) {
+                        await Permission.manageExternalStorage.request();
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Permission already granted"),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.key_rounded),
+                    tooltip: "Request Files Access Permission",
+                  ),
+                  IconButton(
+                    onPressed: () => sort(context),
+                    icon: const Icon(Icons.sort_rounded),
+                    tooltip: "Sort",
+                  ),
+                  IconButton(
+                    onPressed: () => selectStorage(context),
+                    icon: const Icon(Icons.sd_storage_rounded),
+                    tooltip: "Select Storage",
+                  )
+                ],
+                title: Text(value),
+                automaticallyImplyLeading: false,
+                leading: showLeading
+                    ? IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: () async {
+                          await _fileManagerController.goToParentDirectory();
+                        },
+                      )
+                    : null,
+              );
             },
           ),
         ),
