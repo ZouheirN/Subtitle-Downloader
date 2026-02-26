@@ -177,9 +177,7 @@ class SettingsPage extends StatelessWidget {
                               return AlertDialog(
                                 title: const Text('Delete your Account?'),
                                 content: const Text(
-                                    '''If you select Delete we will delete your account on our server.
-
-Your app data will also be deleted and you won't be able to retrieve it.
+                                    '''Your app data will be deleted and you won't be able to retrieve it.
 
 Since this is a security-sensitive operation, you may be asked to login before your account can be deleted.'''),
                                 actions: [

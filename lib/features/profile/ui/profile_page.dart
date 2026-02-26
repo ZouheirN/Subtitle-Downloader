@@ -126,12 +126,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         title: const Text('Logout'),
                         leading: const Icon(Icons.logout_rounded),
                         onTap: () {
-                          _authenticationBloc.add(SignOutInitialEvent());
-
-                          // Clear the profile picture
-                          context
-                              .read<ProfileBloc>()
-                              .add(ClearProfilePictureEvent());
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Logout'),
+                                content: const Text(
+                                    'Are you sure you want to logout?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Cancel'),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                      _authenticationBloc
+                                          .add(SignOutInitialEvent());
+                                      context
+                                          .read<ProfileBloc>()
+                                          .add(ClearProfilePictureEvent());
+                                    },
+                                    child: const Text('Logout'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                       );
                     }
