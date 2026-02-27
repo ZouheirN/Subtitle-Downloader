@@ -59,7 +59,7 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
 
                   case const (TrendingMoviesFetchingSuccessfulState):
                     final successState =
-                        state as TrendingMoviesFetchingSuccessfulState;
+                    state as TrendingMoviesFetchingSuccessfulState;
                     return _buildTrendingMoviesCarousel(
                         successState.trendingMoviesDataUiModel);
 
@@ -114,14 +114,15 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
 
                   case const (NowPlayingMoviesFetchingSuccessfulState):
                     final successState =
-                        state as NowPlayingMoviesFetchingSuccessfulState;
+                    state as NowPlayingMoviesFetchingSuccessfulState;
                     return Align(
                       alignment: Alignment.center,
                       child: Wrap(
                         children: successState
                             .nowPlayingMoviesDataUiModel.results!
                             .map(
-                              (e) => GestureDetector(
+                              (e) =>
+                              GestureDetector(
                                 onTap: () {
                                   context
                                       .pushNamed('View Movie', pathParameters: {
@@ -134,73 +135,74 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
                                       left: 16, right: 16, bottom: 16),
                                   child: e.posterPath == null
                                       ? Container(
-                                          width: 150,
-                                          height: 225,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            color: Colors.grey[100]!
-                                                .withOpacity(0.1),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                              e.title ?? '',
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                        )
+                                    width: 150,
+                                    height: 225,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                      BorderRadius.circular(8),
+                                      color: Colors.grey[100]!
+                                          .withOpacity(0.1),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        e.title ?? '',
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  )
                                       : CachedNetworkImage(
-                                          imageUrl:
-                                              "https://image.tmdb.org/t/p/w500${e.posterPath!}",
-                                          imageBuilder:
-                                              (context, imageProvider) {
-                                            return Container(
-                                              width: 150,
-                                              height: 225,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                image: DecorationImage(
-                                                  image: imageProvider,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          progressIndicatorBuilder:
-                                              (context, url, progress) {
-                                            return Container(
-                                              width: 150,
-                                              height: 225,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                                color: Colors.grey[100]!
-                                                    .withOpacity(0.1),
-                                              ),
-                                              child: Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  value: progress.progress,
-                                                ),
-                                              ),
-                                            );
-                                          },
-                                          errorWidget: (context, url, error) {
-                                            return Container(
-                                              width: 150,
-                                              height: 225,
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              child: Text(e.title ?? ''),
-                                            );
-                                          },
+                                    imageUrl:
+                                    "https://image.tmdb.org/t/p/w500${e
+                                        .posterPath!}",
+                                    imageBuilder:
+                                        (context, imageProvider) {
+                                      return Container(
+                                        width: 150,
+                                        height: 225,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(8),
+                                          image: DecorationImage(
+                                            image: imageProvider,
+                                            fit: BoxFit.cover,
+                                          ),
                                         ),
+                                      );
+                                    },
+                                    progressIndicatorBuilder:
+                                        (context, url, progress) {
+                                      return Container(
+                                        width: 150,
+                                        height: 225,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(8),
+                                          color: Colors.grey[100]!
+                                              .withOpacity(0.1),
+                                        ),
+                                        child: Center(
+                                          child:
+                                          CircularProgressIndicator(
+                                            value: progress.progress,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    errorWidget: (context, url, error) {
+                                      return Container(
+                                        width: 150,
+                                        height: 225,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                          BorderRadius.circular(8),
+                                        ),
+                                        child: Text(e.title ?? ''),
+                                      );
+                                    },
+                                  ),
                                 ),
                               ),
-                            )
+                        )
                             .toList(),
                       ),
                     );
@@ -241,57 +243,68 @@ class _HomeMoviesPageState extends State<HomeMoviesPage> {
 
   Widget _buildTrendingMoviesCarousel(
       TrendingMoviesDataUiModel trendingMoviesDataUiModel) {
-    return ConstrainedBox(
-      constraints: BoxConstraints.loose(const Size.fromHeight(350)),
-      child: Swiper(
-        autoplay: true,
-        viewportFraction: 0.6,
-        scale: 0.8,
-        itemCount: trendingMoviesDataUiModel.results!.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              context.pushNamed('View Movie', pathParameters: {
-                'movieId':
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenHeight = MediaQuery
+            .of(context)
+            .size
+            .height;
+        final isTablet = constraints.maxWidth > 600;
+
+        final carouselHeight = screenHeight * (isTablet ? 0.5 : 0.4);
+        final viewportFraction = isTablet ? 0.2 : 0.6;
+
+        return SizedBox(
+          height: carouselHeight,
+          child: Swiper(
+            autoplay: true,
+            viewportFraction: viewportFraction,
+            scale: 0.8,
+            itemCount: trendingMoviesDataUiModel.results!.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  context.pushNamed('View Movie', pathParameters: {
+                    'movieId':
                     trendingMoviesDataUiModel.results![index].id.toString(),
-                'movieName': trendingMoviesDataUiModel.results![index].title!,
-              });
+                    'movieName':
+                    trendingMoviesDataUiModel.results![index].title!,
+                  });
+                },
+                child: CachedNetworkImage(
+                  imageUrl:
+                  "https://image.tmdb.org/t/p/w500${trendingMoviesDataUiModel
+                      .results![index].posterPath!}",
+                  imageBuilder: (context, imageProvider) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                  progressIndicatorBuilder: (context, url, progress) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey[100]!.withOpacity(0.1),
+                      ),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: progress.progress,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
             },
-            child: CachedNetworkImage(
-              imageUrl:
-                  "https://image.tmdb.org/t/p/w500${trendingMoviesDataUiModel.results![index].posterPath!}",
-              imageBuilder: (context, imageProvider) {
-                return Container(
-                  width: 150,
-                  height: 225,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                );
-              },
-              progressIndicatorBuilder: (context, url, progress) {
-                return Container(
-                  width: 150,
-                  height: 225,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey[100]!.withOpacity(0.1),
-                  ),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: progress.progress,
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

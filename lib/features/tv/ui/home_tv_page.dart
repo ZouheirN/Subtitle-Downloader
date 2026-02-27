@@ -237,57 +237,67 @@ class _HomeTvPageState extends State<HomeTvPage> {
     );
   }
 
-  Widget _buildTrendingTvCarousel(TrendingTvDataUiModel trendingTvDataUiModel) {
-    return ConstrainedBox(
-      constraints: BoxConstraints.loose(const Size.fromHeight(350)),
-      child: Swiper(
-        autoplay: true,
-        viewportFraction: 0.6,
-        scale: 0.8,
-        itemCount: trendingTvDataUiModel.results!.length,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              context.pushNamed('View TV', pathParameters: {
-                'tvId': trendingTvDataUiModel.results![index].id.toString(),
-                'tvName': trendingTvDataUiModel.results![index].name!,
-              });
-            },
-            child: CachedNetworkImage(
-              imageUrl:
+  Widget _buildTrendingTvCarousel(
+      TrendingTvDataUiModel trendingTvDataUiModel) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenHeight = MediaQuery
+            .of(context)
+            .size
+            .height;
+        final isTablet = constraints.maxWidth > 600;
+
+        final carouselHeight = screenHeight * (isTablet ? 0.5 : 0.4);
+        final viewportFraction = isTablet ? 0.2 : 0.6;
+
+        return SizedBox(
+          height: carouselHeight,
+          child: Swiper(
+            autoplay: true,
+            viewportFraction: viewportFraction,
+            scale: 0.8,
+            itemCount: trendingTvDataUiModel.results!.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  context.pushNamed('View TV', pathParameters: {
+                    'tvId': trendingTvDataUiModel.results![index].id.toString(),
+                    'tvName': trendingTvDataUiModel.results![index].name!,
+                  });
+                },
+                child: CachedNetworkImage(
+                  imageUrl:
                   "https://image.tmdb.org/t/p/w500${trendingTvDataUiModel.results![index].posterPath!}",
-              imageBuilder: (context, imageProvider) {
-                return Container(
-                  width: 150,
-                  height: 225,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    image: DecorationImage(
-                      image: imageProvider,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                );
-              },
-              progressIndicatorBuilder: (context, url, progress) {
-                return Container(
-                  width: 150,
-                  height: 225,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey[100]!.withOpacity(0.1),
-                  ),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      value: progress.progress,
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      ),
+                  imageBuilder: (context, imageProvider) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: imageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    );
+                  },
+                  progressIndicatorBuilder: (context, url, progress) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Colors.grey[100]!.withOpacity(0.1),
+                      ),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          value: progress.progress,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 }
