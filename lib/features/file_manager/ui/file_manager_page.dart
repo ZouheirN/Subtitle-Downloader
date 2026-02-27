@@ -163,11 +163,6 @@ class _FileManagerPageState extends State<FileManagerPage> {
 
     setState(() => _rootCount = roots.length);
 
-    if (roots.length == 1) {
-      _selectVolume(roots.first);
-      return;
-    }
-
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -283,7 +278,6 @@ class _FileManagerPageState extends State<FileManagerPage> {
               icon: const Icon(Icons.sort_rounded),
               tooltip: "Sort",
             ),
-            if (_rootCount > 1)
               IconButton(
                 onPressed: _showStorageRoots,
                 icon: const Icon(Icons.sd_storage_rounded),
